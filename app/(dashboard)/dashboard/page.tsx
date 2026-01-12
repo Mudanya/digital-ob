@@ -2,15 +2,6 @@ import DashboardCard from "@/components/features/dashboard-card";
 import RecentCases from "@/components/features/recent-cases";
 import { CardItems } from "@/lib/data";
 import { DashCardItem } from "@/types";
-import {
-  ArrowUp,
-  ArrowUp10,
-  Calendar,
-  Calendar1,
-  CalendarCheck2,
-  Check,
-  TriangleAlert,
-} from "lucide-react";
 import Link from "next/link";
 
 const page = () => {
@@ -23,12 +14,12 @@ const page = () => {
           Nairobi Central Police Station - Real-time operational status
         </p>
       </div>
-      <div className="mt-8 flex gap-2 w-full flex-col sm:flex-row  flex-wrap lg:justify-between !min-h-1/5 h-fit lg:h-1/5 mb-15">
+      <div className="mt-8 flex gap-2 w-full flex-col sm:flex-row  flex-wrap lg:justify-between !min-h-1/5 h-fit xl:h-1/5 mb-15">
         {carditems.map((item) => (
           <DashboardCard key={item.title} {...item} />
         ))}
       </div>
-      <div className="flex gap-2 my-5 h-1/3 flex-wrap lg:justify-between">
+      <div className="flex gap-2 my-5 h-fit xl:h-1/3 flex-wrap lg:justify-between">
         <div className=" bg-white/12 border border-white/20 rounded-xl basis-full sm:basis-[49%] md:basis-[65.5%] ">
           <div className="flex justify-between p-4 border-b border-white/20">
             <h3>Recent Cases</h3>
@@ -72,7 +63,7 @@ const page = () => {
           </div>
         </div>
       </div>
-       <div className=" bg-white/12 rounded-xl border border-white/20 w-1/2 mt-25">
+       <div className=" bg-white/12 rounded-xl border border-white/20 w-1/2 mt-96 sm:mt-25">
           <div className="flex justify-between p-4 border-b border-white/20">
             <h3>Quick Action</h3>
           </div>

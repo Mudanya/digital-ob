@@ -16,3 +16,12 @@ export type SidebarMenu = {
     url: string
     icon: LucideIcon,
 }
+
+export type ObEntry = {
+    id: number,
+    obNumber: string,
+    dateTime: string,
+    description: string,
+    officer: string,
+    priority: string,
+}

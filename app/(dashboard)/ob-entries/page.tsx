@@ -1,18 +1,32 @@
+"use client";
+import DataTable from "@/components/layouts/data-table";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { SelectGroup, SelectLabel } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@radix-ui/react-select";
-import { PlusCircle, Badge, Eye, Edit, Printer } from "lucide-react";
+} from "@/components/ui/select";
 
-const entries = [
+import { ObEntry } from "@/types";
+import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown, MoreHorizontal, PlusCircle } from "lucide-react";
+
+const entries: ObEntry[] = [
   {
+    id: 1,
     obNumber: "OB/2024/001567",
     dateTime: "12 Oct 2024, 14:30",
     description: "Armed Robbery - Westlands Area",
@@ -20,6 +34,7 @@ const entries = [
     priority: "urgent",
   },
   {
+    id: 2,
     obNumber: "OB/2024/001566",
     dateTime: "12 Oct 2024, 10:15",
     description: "Traffic Accident - Uhuru Highway",
@@ -27,6 +42,7 @@ const entries = [
     priority: "high",
   },
   {
+    id: 3,
     obNumber: "OB/2024/001565",
     dateTime: "12 Oct 2024, 08:45",
     description: "Lost Document Report",
@@ -34,6 +50,7 @@ const entries = [
     priority: "medium",
   },
   {
+    id: 4,
     obNumber: "OB/2024/001564",
     dateTime: "11 Oct 2024, 22:30",
     description: "Domestic Disturbance - Kilimani",
@@ -41,6 +58,7 @@ const entries = [
     priority: "low",
   },
   {
+    id: 5,
     obNumber: "OB/2024/001563",
     dateTime: "11 Oct 2024, 19:00",
     description: "Theft of Mobile Phone - CBD",
@@ -49,20 +67,97 @@ const entries = [
   },
 ];
 
-const getPriorityColor = (priority: string) => {
-  switch (priority) {
-    case "urgent":
-      return "bg-red-500/20 text-red-300 hover:bg-red-500/30";
-    case "high":
-      return "bg-amber-500/20 text-amber-300 hover:bg-amber-500/30";
-    case "medium":
-      return "bg-blue-500/20 text-blue-300 hover:bg-blue-500/30";
-    case "low":
-      return "bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30";
-    default:
-      return "bg-gray-500/20 text-gray-300 hover:bg-gray-500/30";
-  }
-};
+export const columns: ColumnDef<ObEntry>[] = [
+  {
+    accessorKey: "obNumber",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          OB Number
+          <ArrowUpDown />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("obNumber")}</div>
+    ),
+  },
+  {
+    accessorKey: "dateTime",
+    header: "Date & Time",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("dateTime")}</div>
+    ),
+  },
+  {
+    accessorKey: "description",
+    header: "Description",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("description")}</div>
+    ),
+  },
+  {
+    accessorKey: "officer",
+    header: "Officer",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("officer")}</div>
+    ),
+  },
+  {
+    accessorKey: "priority",
+    header: "Priority",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("priority")}</div>
+    ),
+  },
+
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      const entry = row.original;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(`${entry.id}`)}
+            >
+              Copy entry ID
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>View customer</DropdownMenuItem>
+            <DropdownMenuItem>View entry details</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
+];
+
+// const getPriorityColor = (priority: string) => {
+//   switch (priority) {
+//     case "urgent":
+//       return "bg-red-500/20 text-red-300 hover:bg-red-500/30";
+//     case "high":
+//       return "bg-amber-500/20 text-amber-300 hover:bg-amber-500/30";
+//     case "medium":
+//       return "bg-blue-500/20 text-blue-300 hover:bg-blue-500/30";
+//     case "low":
+//       return "bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30";
+//     default:
+//       return "bg-gray-500/20 text-gray-300 hover:bg-gray-500/30";
+//   }
+// };
 const ObEntries = () => {
   return (
     <main className="flex-1 p-6 overflow-y-auto h-[calc(100vh-80px)]">
@@ -82,21 +177,14 @@ const ObEntries = () => {
 
       {/* Filters Card */}
       <Card className="bg-white/10 backdrop-blur-md border-white/20 p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm text-blue-200">Date Range</label>
-            <Input
-              type="date"
-              className="bg-white/10 border-white/20 text-white"
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="flex flex-col gap-2">
             <label className="text-sm text-blue-200">Priority</label>
             <Select>
               <SelectTrigger className="bg-white/10 w-full rounded-lg p-2 border-white/20 text-white">
                 <SelectValue placeholder="All Priorities" />
               </SelectTrigger>
-              <SelectContent className="bg-white/12 w-full">
+              <SelectContent>
                 <SelectGroup>
                   <SelectLabel>All Priorities</SelectLabel>
                   <SelectItem value="all">All Priorities</SelectItem>
@@ -111,7 +199,7 @@ const ObEntries = () => {
           <div className="flex flex-col gap-2">
             <label className="text-sm text-blue-200">Category</label>
             <Select>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+              <SelectTrigger className="bg-white/10 border-white/20 w-full rounded-lg p-2 text-white">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
@@ -123,134 +211,18 @@ const ObEntries = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-sm text-blue-200">Officer</label>
-            <Select>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                <SelectValue placeholder="All Officers" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Officers</SelectItem>
-                <SelectItem value="mary">PC Mary Wanjiku</SelectItem>
-                <SelectItem value="james">Cpl James Ochieng</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
       </Card>
 
       {/* Entries Table */}
       <Card className="bg-white/10 backdrop-blur-md border-white/20 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-white/10">
-              <tr>
-                <th className="px-4 py-4 text-left text-sm font-semibold text-blue-200">
-                  OB Number
-                </th>
-                <th className="px-4 py-4 text-left text-sm font-semibold text-blue-200">
-                  Date & Time
-                </th>
-                <th className="px-4 py-4 text-left text-sm font-semibold text-blue-200">
-                  Description
-                </th>
-                <th className="px-4 py-4 text-left text-sm font-semibold text-blue-200">
-                  Officer
-                </th>
-                <th className="px-4 py-4 text-left text-sm font-semibold text-blue-200">
-                  Priority
-                </th>
-                <th className="px-4 py-4 text-left text-sm font-semibold text-blue-200">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((entry, index) => (
-                <tr
-                  key={index}
-                  className="border-t border-white/10 hover:bg-white/5 transition-colors"
-                >
-                  <td className="px-4 py-4 font-semibold text-blue-400">
-                    {entry.obNumber}
-                  </td>
-                  <td className="px-4 py-4 text-white">{entry.dateTime}</td>
-                  <td className="px-4 py-4 text-white">{entry.description}</td>
-                  <td className="px-4 py-4 text-white">{entry.officer}</td>
-                  <td className="px-4 py-4">
-                    <Badge className={getPriorityColor(entry.priority)}>
-                      {entry.priority.charAt(0).toUpperCase() +
-                        entry.priority.slice(1)}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="bg-white/10 hover:bg-white/20 text-white"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="bg-white/10 hover:bg-white/20 text-white"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="bg-white/10 hover:bg-white/20 text-white"
-                      >
-                        <Printer className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable columns={columns} data={entries} />
         </div>
 
-        {/* Pagination */}
-        <div className="flex justify-between items-center px-6 py-4 border-t border-white/10">
-          <div className="text-sm text-blue-200">
-            Showing 1-5 of 1,567 entries
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              Previous
-            </Button>
-            <Button className="bg-blue-700 hover:bg-blue-800 text-white">
-              1
-            </Button>
-            <Button
-              variant="outline"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              2
-            </Button>
-            <Button
-              variant="outline"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              3
-            </Button>
-            <Button
-              variant="outline"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              Next
-            </Button>
-          </div>
-        </div>
+        
       </Card>
-    </main>
+    </main> 
   );
 };
 
