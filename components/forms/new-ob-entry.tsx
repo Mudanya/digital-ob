@@ -15,7 +15,7 @@ const NewOBEntry = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e:any) => {
     e.preventDefault();
     alert('OB Entry submitted successfully! OB Number: OB/2024/001568');
   };
@@ -269,7 +269,7 @@ const NewOBEntry = () => {
                     Upload Files
                   </label>
                   <div
-                    onClick={() => document?.getElementById('fileInput').click()}
+                    // onClick={() => document.getElementById('fileInput').click()}
                     className="bg-white/5 border-2 border-dashed border-white/20 rounded-lg p-8 text-center cursor-pointer hover:bg-white/10 hover:border-blue-400 transition-colors"
                   >
                     <UploadCloud className="w-12 h-12 text-blue-400 mx-auto mb-4" />
