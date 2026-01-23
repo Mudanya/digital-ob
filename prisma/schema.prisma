@@ -1,0 +1,388 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  INSPECTOR_GENERAL
+  DEPUTY_INSPECTOR_GENERAL
+  COUNTY_COMMANDER
+  OCPD
+  OCS
+  OCP
+  INSPECTOR
+  SERGEANT
+  CORPORAL
+  CONSTABLE
+  ADMIN
+}
+
+enum CaseStatus {
+  REPORTED
+  UNDER_INVESTIGATION
+  ASSIGNED_TO_DCI
+  ASSIGNED_TO_PROSECUTION
+  ASSIGNED_TO_ARBITRATION
+  COURT_FILED
+  RESOLVED
+  CLOSED
+}
+
+enum CasePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum CaseCategory {
+  THEFT
+  ASSAULT
+  ROBBERY
+  MURDER
+  TRAFFIC
+  DOMESTIC
+  FRAUD
+  CYBERCRIME
+  NARCOTICS
+  OTHER
+}
+
+enum DutyStatus {
+  ON_DUTY
+  OFF_DUTY
+  LEAVE
+  SICK_LEAVE
+  TRAINING
+}
+
+model User {
+  id                String         @id @default(cuid())
+  serviceNumber     String         @unique
+  email             String         @unique
+  password          String
+  firstName         String
+  lastName          String
+  phoneNumber       String
+  role              UserRole
+  rank              String
+  stationId         String?
+  countyId          String?
+  isActive          Boolean        @default(true)
+  lastLogin         DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  station           Station?       @relation(fields: [stationId], references: [id])
+  county            County?        @relation(fields: [countyId], references: [id])
+  
+  casesReported     Case[]         @relation("ReportedBy")
+  casesAssigned     Case[]         @relation("AssignedTo")
+  obEntries         OBEntry[]
+  trafficOffenses   TrafficOffense[]
+  dutyRosters       DutyRoster[]
+  activityLogs      ActivityLog[]
+  notifications     Notification[]
+  courtFiles        CourtFile[]    @relation("FiledBy")
+  
+  @@index([serviceNumber])
+  @@index([email])
+  @@index([stationId])
+  @@index([role])
+}
+
+model County {
+  id            String      @id @default(cuid())
+  name          String      @unique
+  code          String      @unique
+  region        String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  stations      Station[]
+  users         User[]
+  
+  @@index([code])
+}
+
+model Station {
+  id                String      @id @default(cuid())
+  name              String
+  code              String      @unique
+  countyId          String
+  address           String
+  phoneNumber       String?
+  latitude          Float?
+  longitude         Float?
+  isActive          Boolean     @default(true)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  county            County      @relation(fields: [countyId], references: [id])
+  users             User[]
+  cases             Case[]
+  obEntries         OBEntry[]
+  dutyRosters       DutyRoster[]
+  
+  @@index([code])
+  @@index([countyId])
+}
+
+model Case {
+  id                String        @id @default(cuid())
+  obNumber          String        @unique
+  title             String
+  description       String
+  category          CaseCategory
+  status            CaseStatus    @default(REPORTED)
+  priority          CasePriority  @default(MEDIUM)
+  location          String
+  latitude          Float?
+  longitude         Float?
+  reportedById      String
+  assignedToId      String?
+  stationId         String
+  incidentDate      DateTime
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  
+  reportedBy        User          @relation("ReportedBy", fields: [reportedById], references: [id])
+  assignedTo        User?         @relation("AssignedTo", fields: [assignedToId], references: [id])
+  station           Station       @relation(fields: [stationId], references: [id])
+  
+  obEntry           OBEntry?
+  suspects          Suspect[]
+  victims           Victim[]
+  witnesses         Witness[]
+  evidence          Evidence[]
+  caseUpdates       CaseUpdate[]
+  courtFiles        CourtFile[]
+  
+  @@index([obNumber])
+  @@index([status])
+  @@index([priority])
+  @@index([stationId])
+  @@index([reportedById])
+  @@index([assignedToId])
+}
+
+model OBEntry {
+  id                String      @id @default(cuid())
+  caseId            String      @unique
+  entryNumber       Int
+  stationId         String
+  officerId         String
+  entryDate         DateTime    @default(now())
+  description       String
+  action            String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  station           Station     @relation(fields: [stationId], references: [id])
+  officer           User        @relation(fields: [officerId], references: [id])
+  
+  @@index([stationId, entryNumber])
+  @@index([officerId])
+}
+
+model Suspect {
+  id                String      @id @default(cuid())
+  caseId            String
+  firstName         String
+  lastName          String
+  idNumber          String?
+  phoneNumber       String?
+  address           String?
+  age               Int?
+  gender            String?
+  description       String?
+  photo             String?
+  arrestDate        DateTime?
+  isCustody         Boolean     @default(false)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  @@index([caseId])
+  @@index([idNumber])
+}
+
+model Victim {
+  id                String      @id @default(cuid())
+  caseId            String
+  firstName         String
+  lastName          String
+  idNumber          String?
+  phoneNumber       String?
+  address           String?
+  age               Int?
+  gender            String?
+  statement         String?
+  medicalReport     String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  @@index([caseId])
+}
+
+model Witness {
+  id                String      @id @default(cuid())
+  caseId            String
+  firstName         String
+  lastName          String
+  idNumber          String?
+  phoneNumber       String?
+  address           String?
+  statement         String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  @@index([caseId])
+}
+
+model Evidence {
+  id                String      @id @default(cuid())
+  caseId            String
+  type              String
+  description       String
+  fileUrl           String?
+  collectedBy       String
+  collectedAt       DateTime
+  chainOfCustody    String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  @@index([caseId])
+}
+
+model CaseUpdate {
+  id                String      @id @default(cuid())
+  caseId            String
+  updateBy          String
+  updateType        String
+  description       String
+  createdAt         DateTime    @default(now())
+  
+  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  @@index([caseId])
+}
+
+model TrafficOffense {
+  id                String      @id @default(cuid())
+  offenseNumber     String      @unique
+  officerId         String
+  driverName        String
+  driverIdNumber    String?
+  driverLicense     String?
+  vehicleReg        String
+  offenseType       String
+  location          String
+  latitude          Float?
+  longitude         Float?
+  fineAmount        Float?
+  isPaid            Boolean     @default(false)
+  offenseDate       DateTime
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  officer           User        @relation(fields: [officerId], references: [id])
+  
+  @@index([offenseNumber])
+  @@index([vehicleReg])
+  @@index([officerId])
+}
+
+model CourtFile {
+  id                String      @id @default(cuid())
+  caseId            String
+  courtName         String
+  caseNumber        String      @unique
+  filedById         String
+  filingDate        DateTime
+  hearingDate       DateTime?
+  verdict           String?
+  status            String      @default("FILED")
+  notes             String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  filedBy           User        @relation("FiledBy", fields: [filedById], references: [id])
+  
+  @@index([caseId])
+  @@index([caseNumber])
+  @@index([status])
+}
+
+model DutyRoster {
+  id                String      @id @default(cuid())
+  officerId         String
+  stationId         String
+  dutyDate          DateTime
+  shiftStart        DateTime
+  shiftEnd          DateTime
+  status            DutyStatus  @default(ON_DUTY)
+  assignment        String?
+  notes             String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  officer           User        @relation(fields: [officerId], references: [id])
+  station           Station     @relation(fields: [stationId], references: [id])
+  
+  @@index([officerId, dutyDate])
+  @@index([stationId, dutyDate])
+}
+
+model Notification {
+  id                String      @id @default(cuid())
+  userId            String
+  title             String
+  message           String
+  type              String
+  isRead            Boolean     @default(false)
+  metadata          Json?
+  createdAt         DateTime    @default(now())
+  
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+model ActivityLog {
+  id                String      @id @default(cuid())
+  userId            String
+  action            String
+  entityType        String
+  entityId          String?
+  ipAddress         String?
+  userAgent         String?
+  metadata          Json?
+  createdAt         DateTime    @default(now())
+  
+  user              User        @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([createdAt])
+  @@index([entityType, entityId])
+}

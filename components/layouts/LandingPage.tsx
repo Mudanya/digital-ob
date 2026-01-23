@@ -26,6 +26,7 @@ import {
   Zap,
   Globe,
   TrendingUp,
+  LogIn,
 } from "lucide-react";
 
 const LandingPage = () => {
@@ -144,38 +145,8 @@ const LandingPage = () => {
     },
   ];
 
-  const loginPortals = [
-    {
-      title: "Field Officers",
-      desc: "Constables, Corporals, Sergeants",
-      icon: <Shield className="h-8 w-8" />,
-      color: "from-green-500 to-green-600",
-      href: "/login/officer",
-    },
-    {
-      title: "Station Admin",
-      desc: "OCS, Station Inspectors",
-      icon: <Building2 className="h-8 w-8" />,
-      color: "from-blue-500 to-blue-600",
-      href: "/login/station-admin",
-    },
-    {
-      title: "Regional Admin",
-      desc: "County Commanders, OCPDs",
-      icon: <Users className="h-8 w-8" />,
-      color: "from-orange-500 to-orange-600",
-      href: "/login/regional-admin",
-    },
-    {
-      title: "Super Admin",
-      desc: "IG, DIG, National Command",
-      icon: <Lock className="h-8 w-8" />,
-      color: "from-red-500 to-red-600",
-      href: "/login/super-admin",
-    },
-  ];
-
   return (
+    <>
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-gradient-to-r from-[#1a2332] to-[#1e3a5f] backdrop-blur-xl shadow-lg border-b border-yellow-500/30">
@@ -203,17 +174,15 @@ const LandingPage = () => {
               <a href="#features" className="text-gray-300 hover:text-white transition">
                 Features
               </a>
-              <a href="#login" className="text-gray-300 hover:text-white transition">
-                Login
-              </a>
               <a href="#support" className="text-gray-300 hover:text-white transition">
                 Support
               </a>
               <Link
-                href="/login/officer"
-                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition shadow-md"
+                href="/login"
+                className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition shadow-md flex items-center gap-2"
               >
-                Officer Login
+                <LogIn className="h-4 w-4" />
+                Login
               </Link>
             </div>
 
@@ -229,41 +198,43 @@ const LandingPage = () => {
           {/* Mobile Menu */}
           {mobileMenuOpen && (
             <div className="md:hidden py-4 space-y-3 border-t border-white/10">
-              <a
-                href="#about"
+              
+                <a href="#about"
                 className="block text-gray-300 hover:text-white transition py-2"
               >
                 About
               </a>
-              <a
+              
+                <a href="#structure"
+                className="block text-gray-300 hover:text-white transition py-2"
+              >
+                Structure
+              </a>
+              
+                <a href="#features"
+                className="block text-gray-300 hover:text-white transition py-2"
+              >
+                Features
+                </a>
+                <a 
                 href="#structure"
                 className="block text-gray-300 hover:text-white transition py-2"
               >
                 Structure
               </a>
+              
               <a
-                href="#features"
-                className="block text-gray-300 hover:text-white transition py-2"
-              >
-                Features
-              </a>
-              <a
-                href="#login"
-                className="block text-gray-300 hover:text-white transition py-2"
-              >
-                Login
-              </a>
-              <a
+              
                 href="#support"
                 className="block text-gray-300 hover:text-white transition py-2"
               >
                 Support
               </a>
               <Link
-                href="/login/officer"
+                href="/login"
                 className="block px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg text-center"
               >
-                Officer Login
+                Login
               </Link>
             </div>
           )}
@@ -292,22 +263,15 @@ const LandingPage = () => {
           {/* CTA Buttons */}
           <div className="flex flex-wrap justify-center gap-4">
             <Link
-              href="/login/officer"
-              className="px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2"
+              href="/login"
+              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2"
             >
-              <Shield className="h-5 w-5" />
-              Login as Officer
-            </Link>
-            <Link
-              href="/login/station-admin"
-              className="px-8 py-4 bg-white border-2 border-blue-600 text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
-            >
-              <Building2 className="h-5 w-5" />
-              Login as Admin
+              <LogIn className="h-5 w-5" />
+              Access System
             </Link>
             <a
               href="#about"
-              className="px-8 py-4 bg-gray-100 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all flex items-center gap-2 shadow-md"
+              className="px-8 py-4 bg-white border-2 border-blue-600 text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
             >
               Learn More
               <ChevronDown className="h-5 w-5" />
@@ -333,7 +297,7 @@ const LandingPage = () => {
               </div>
             ))}
           </div>
-        </div>
+      </div>
       </section>
 
       {/* About Section */}
@@ -458,6 +422,24 @@ const LandingPage = () => {
               </div>
             ))}
           </div>
+
+          {/* Access Info Card */}
+          <div className="mt-12 bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-2xl p-8 shadow-lg">
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 bg-green-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                <Lock className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Automatic Role Assignment
+                </h3>
+                <p className="text-gray-700">
+                  Login with your service credentials and access features based on your rank and assignment. 
+                  The system automatically grants appropriate permissions according to Kenya Police Service hierarchy.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -574,46 +556,44 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Login Portals Section */}
-      <section id="login" className="py-20 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Login Portals
-            </h2>
-            <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-              Select your access level to login to the system
-            </p>
-          </div>
+      {/* Login CTA Section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-500 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl" />
+        </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {loginPortals.map((portal, index) => (
-              <Link
-                key={index}
-                href={portal.href}
-                className="bg-white border border-gray-200 shadow-lg rounded-xl p-6 hover:shadow-xl hover:border-blue-400 transition-all group text-center"
-              >
-                <div
-                  className={`h-16 w-16 bg-gradient-to-br ${portal.color} rounded-xl flex items-center justify-center mx-auto mb-4 text-white group-hover:scale-110 transition-transform shadow-md`}
-                >
-                  {portal.icon}
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {portal.title}
-                </h3>
-                <p className="text-gray-600 text-sm mb-4">{portal.desc}</p>
-                <div className="flex items-center justify-center gap-2 text-blue-600 group-hover:gap-3 transition-all font-semibold">
-                  <span className="text-sm">Access Portal</span>
-                  <ArrowRight className="h-4 w-4" />
-                </div>
-              </Link>
-            ))}
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl mb-6 border-2 border-yellow-400/50">
+            <Shield className="h-12 w-12 text-white" />
           </div>
+          
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            Ready to Get Started?
+          </h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            Access your personalized dashboard with secure login. Your permissions and features 
+            will be automatically configured based on your service credentials.
+          </p>
+
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-900 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          >
+            <LogIn className="h-5 w-5" />
+            Access Digital OB System
+            <ArrowRight className="h-5 w-5" />
+          </Link>
+
+          <p className="mt-6 text-sm text-blue-200">
+            Need access? Contact your station administrator or IT support
+          </p>
         </div>
       </section>
 
       {/* Resources Section */}
-      <section className="py-20 px-4 bg-gray-50">
+      <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -670,12 +650,12 @@ const LandingPage = () => {
                 View Docs <ArrowRight className="h-4 w-4" />
               </a>
             </div>
-          </div>
-        </div>
+            </div>
+            </div>
       </section>
 
       {/* Contact & Support Section */}
-      <section id="support" className="py-20 px-4 bg-white">
+      <section id="support" className="py-20 px-4 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -763,9 +743,9 @@ const LandingPage = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="#login" className="hover:text-white transition">
+                  <Link href="/login" className="hover:text-white transition">
                     Login
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -828,6 +808,7 @@ const LandingPage = () => {
         </div>
       </footer>
     </div>
+    </>
   );
 };
 

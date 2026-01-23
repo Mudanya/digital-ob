@@ -1,228 +1,240 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { Eye, EyeOff, Shield } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { Shield, Eye, EyeOff, Loader2, CheckCircle2, Users, BarChart3 } from "lucide-react";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    badgeNumber: "",
+    identifier: "",
     password: "",
-    rememberMe: false,
   });
-  const router = useRouter();
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log("Login attempt:", formData);
+    setIsLoading(true);
+    
+    // Your authentication logic here
+    // Role-based routing will happen after successful login
+    
+    setTimeout(() => setIsLoading(false), 2000);
   };
 
+  const features = [
+    {
+      icon: <CheckCircle2 className="h-4 w-4" />,
+      text: "Secure role-based access",
+    },
+    {
+      icon: <Users className="h-4 w-4" />,
+      text: "Automatic permissions",
+    },
+    {
+      icon: <BarChart3 className="h-4 w-4" />,
+      text: "Real-time management",
+    },
+  ];
+
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332] flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-950 via-blue-900 to-blue-950 p-4">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-5" />
-
-      <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-center relative z-10">
-        {/* Left Side - Branding */}
-        <div className="flex-1 text-white space-y-6 text-center lg:text-left">
-          <div className="flex items-center justify-center lg:justify-start gap-3">
-            <div className="rounded-xl  flex items-center justify-center shadow-xl">
-              <div className="h-full w-auto overflow-hidden rounded ">
-                <Image
-                  className="object-contain"
-                  src="/logo.png"
-                  alt="logo"
-                  width={35}
-                  height={35}
-                />
-              </div>
-            </div>
-            <div>
-              <h1 className="text-4xl font-extrabold">Digital OB</h1>
-              <p className="text-sm text-gray-400">Kenya Police Service</p>
-            </div>
-          </div>
-
-          <div className="space-y-4 mt-8">
-            <h2 className="text-3xl font-bold leading-tight">
-              Modernizing Law Enforcement
-              <br />
-              Record Management
-            </h2>
-            <p className="text-gray-300 text-lg max-w-md mx-auto lg:mx-0">
-              Secure, efficient, and real-time occurrence book management system
-              for Kenya Police Service stations nationwide.
-            </p>
-          </div>
-
-          {/* Features */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-            {[
-              {
-                title: "Real-time Updates",
-                desc: "Instant case synchronization",
-              },
-              { title: "Secure Access", desc: "Role-based authentication" },
-              { title: "Digital Records", desc: "Paperless case management" },
-              { title: "Analytics", desc: "Comprehensive reporting" },
-            ].map((feature, index) => (
-              <div
-                key={index}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-all"
-              >
-                <h4 className="font-semibold mb-1">{feature.title}</h4>
-                <p className="text-sm text-gray-400">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Side - Login Form */}
-        <div className="w-full lg:w-[480px]">
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-8">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-white mb-2">
-                Officer Login
-              </h2>
-              <p className="text-gray-300 text-sm">
-                Enter your credentials to access the system
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Badge Number */}
-              <div>
-                <label
-                  htmlFor="badgeNumber"
-                  className="block text-sm font-medium text-gray-200 mb-2"
-                >
-                  Badge Number / Service Number
-                </label>
-                <input
-                  type="text"
-                  id="badgeNumber"
-                  value={formData.badgeNumber}
-                  onChange={(e) =>
-                    setFormData({ ...formData, badgeNumber: e.target.value })
-                  }
-                  placeholder="e.g., NM/12345"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  required
-                />
-              </div>
-
-              {/* Password */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-200 mb-2"
-                >
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                    placeholder="Enter your password"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all pr-12"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.rememberMe}
-                    onChange={(e) =>
-                      setFormData({ ...formData, rememberMe: e.target.checked })
-                    }
-                    className="w-4 h-4 rounded border-white/20 bg-white/5 text-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
-                  />
-                  <span className="text-sm text-gray-300">Remember me</span>
-                </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                onClick={()=>{
-                    router.push('/dashboard')
-                }}
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                Sign In
-              </button>
-
-              {/* Divider */}
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/20"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-transparent text-gray-400">
-                    Need help?
-                  </span>
-                </div>
-              </div>
-
-              {/* Help Links */}
-              <div className="text-center space-y-2">
-                <p className="text-sm text-gray-300">
-                  Contact your station administrator or
-                </p>
-                <Link
-                  href="/support"
-                  className="text-sm text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1"
-                >
-                  <Shield className="h-4 w-4" />
-                  IT Support Center
-                </Link>
-              </div>
-            </form>
-          </div>
-
-          {/* Footer Notice */}
-          <div className="mt-6 text-center">
-            <p className="text-xs text-gray-400">
-              This is a restricted system for authorized Kenya Police Service
-              personnel only.
-              <br />
-              Unauthorized access is prohibited and will be prosecuted.
-            </p>
-          </div>
-        </div>
+      <div className="fixed inset-0 overflow-hidden opacity-10">
+        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-yellow-500 to-transparent rounded-full blur-3xl" />
+        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-blue-500 to-transparent rounded-full blur-3xl" />
       </div>
 
-      {/* Bottom Footer */}
-      <div className="absolute bottom-4 left-0 right-0 text-center text-xs text-gray-500">
-        <p>© 2026 Kenya Police Service. All rights reserved. | Version 1.0.1</p>
+      {/* Centered Container - About 50% of page width */}
+      <div className="w-full max-w-3xl mx-auto relative z-10">
+        <div className="flex flex-col lg:flex-row">
+          {/* Left Section - Branding & Info */}
+          <div className="hidden lg:flex lg:w-5/12 p-6 flex-col justify-between rounded-l-2xl bg-white/5 backdrop-blur-sm border-l border-t border-b border-white/10">
+            {/* Content */}
+            <div>
+              {/* Logo */}
+              <div className="flex items-center gap-2 mb-6">
+                <div className="h-12 w-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border-2 border-yellow-400/50 shadow-lg">
+                  <Shield className="h-8 w-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-white">Digital OB</h1>
+                  <p className="text-lg text-blue-200">Kenya Police</p>
+                </div>
+              </div>
+
+              {/* Main Message */}
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2 leading-tight">
+                  Modernizing Law Enforcement
+                </h2>
+                <p className="text-lg text-blue-100 leading-relaxed">
+                  Unified digital platform for case management.
+                </p>
+              </div>
+
+              {/* Features */}
+              <div className="space-y-2">
+                {features.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-2 text-white">
+                    <div className="h-7 w-7 bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/20 flex-shrink-0">
+                      {feature.icon}
+                    </div>
+                    <span className="text-sm text-blue-100">{feature.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Footer Security Notice */}
+            <div className="bg-yellow-900/20 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-2 mt-4">
+              <p className="text-sm text-yellow-100">
+                <span className="font-semibold">Security:</span> Unauthorized access prohibited.
+              </p>
+            </div>
+          </div>
+
+          {/* Right Section - Login Form */}
+          <div className="w-full lg:w-7/12">
+            {/* Mobile Logo - Only visible on small screens */}
+            <div className="lg:hidden mb-6 text-center">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl mb-3 shadow-lg border-2 border-yellow-400/50">
+                <Shield className="h-8 w-8 text-white" />
+              </div>
+              <h1 className="text-xl font-bold text-white">Digital OB</h1>
+              <p className="text-sm text-blue-200">Kenya Police Service</p>
+            </div>
+
+            {/* Login Card */}
+            <div className="bg-white/95 backdrop-blur-xl rounded-2xl lg:rounded-l-none lg:rounded-r-2xl shadow-2xl border border-gray-200 overflow-hidden">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-blue-900 to-blue-950 p-5 text-center">
+                <div className="hidden lg:inline-flex items-center justify-center w-14 h-14 bg-white/10 backdrop-blur-sm rounded-xl mb-2 border-2 border-yellow-400/50 shadow-lg">
+                  <Shield className="h-8 w-8 text-white" />
+                </div>
+                <h2 className="text-xl font-bold text-white mb-1">Welcome Back</h2>
+                <p className="text-blue-100 text-xs">Sign in to access your dashboard</p>
+              </div>
+
+              {/* Form */}
+              <div className="p-5">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Identifier Input */}
+                  <div>
+                    <label htmlFor="identifier" className="block text-xs font-semibold text-gray-700 mb-1.5">
+                      Service Number or Email
+                    </label>
+                    <input
+                      id="identifier"
+                      type="text"
+                      required
+                      value={formData.identifier}
+                      onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
+                      placeholder="Enter credentials"
+                      className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-sm text-gray-900 placeholder:text-gray-400"
+                    />
+                  </div>
+
+                  {/* Password Input */}
+                  <div>
+                    <label htmlFor="password" className="block text-xs font-semibold text-gray-700 mb-1.5">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        required
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        placeholder="Enter password"
+                        className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-sm text-gray-900 placeholder:text-gray-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Remember & Forgot */}
+                  <div className="flex items-center justify-between text-xs">
+                    <label className="flex items-center gap-1.5 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      />
+                      <span className="text-gray-700 group-hover:text-gray-900 transition-colors">
+                        Remember me
+                      </span>
+                    </label>
+                    <a href="/forgot-password" className="text-blue-600 hover:text-blue-700 font-medium transition-colors">
+                      Forgot password?
+                    </a>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 focus:ring-4 focus:ring-blue-200 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Signing in...</span>
+                      </>
+                    ) : (
+                      <span>Sign In</span>
+                    )}
+                  </button>
+                </form>
+
+                {/* Divider */}
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300" />
+                  </div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="px-3 bg-white text-gray-500">Need help?</span>
+                  </div>
+                </div>
+
+                {/* Help Links */}
+                <div className="space-y-1.5 text-center text-xs">
+                  <p className="text-gray-600">
+                    Contact station admin or IT support
+                  </p>
+                  <div className="flex items-center justify-center gap-3 text-blue-600">
+                    <a href="mailto:support@digitalob.go.ke" className="hover:text-blue-700 transition-colors font-medium">
+                      Email
+                    </a>
+                    <span className="text-gray-300">|</span>
+                    <a href="tel:0800123456" className="hover:text-blue-700 transition-colors font-medium">
+                      0800 123 456
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="bg-gray-50 px-5 py-2.5 border-t border-gray-200">
+                <p className="text-xs text-gray-500 text-center">
+                  © 2026 Kenya Police Service | v2.0.1
+                </p>
+              </div>
+            </div>
+
+            {/* Mobile Security Notice */}
+            <div className="lg:hidden mt-3 p-3 bg-yellow-900/20 backdrop-blur-sm border border-yellow-500/30 rounded-lg">
+              <p className="text-xs text-yellow-100 text-center">
+                <span className="font-semibold">Security:</span> Unauthorized access prohibited.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

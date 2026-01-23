@@ -1,5 +1,5 @@
 'use client'
-import { Items } from "@/lib/data";
+import { Items } from "@/lib/data/";
 import {
   Sidebar,
   SidebarContent,
