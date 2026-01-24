@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
-import { UserRole } from '@prisma/client';
 import {
   LayoutDashboard,
   FileText,
@@ -28,6 +27,7 @@ import {
   Folder,
   X,
 } from 'lucide-react';
+import { UserRole } from '@/generated/prisma/enums';
 
 interface MenuItem {
   name: string;
