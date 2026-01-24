@@ -234,7 +234,7 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
           stationId,
           officerId: req.user!.userId,
           description: data.description,
-        },
+        },  
       });
 
       // Log activity
