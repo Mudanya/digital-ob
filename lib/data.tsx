@@ -5,7 +5,7 @@ export const CardItems: DashCardItem[] = [
   {
     title: 'Total Cases',
     value: 0,
-    icon: FileText,
+    icon: FileText ,
     change: '+0% from last month',
     color: 'bg-blue-500',
   },
