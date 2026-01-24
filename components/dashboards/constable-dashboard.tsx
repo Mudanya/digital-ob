@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import DashboardCard from '@/components/features/dashboard-card';
-import RecentCases from '@/components/features/recent-cases';
-import { DashboardStats, DashCardItem } from '@/types';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import DashboardCard from "@/components/features/dashboard-card";
+import RecentCases from "@/components/features/recent-cases";
+import { DashboardStats, DashCardItem } from "@/types";
+import Link from "next/link";
 import {
   FileText,
   AlertCircle,
@@ -15,7 +15,7 @@ import {
   Search,
   MapPin,
   Clock,
-} from 'lucide-react';
+} from "lucide-react";
 
 export default function ConstableDashboard() {
   const { user, token } = useAuth();
@@ -26,15 +26,15 @@ export default function ConstableDashboard() {
     const fetchStats = async () => {
       if (!token) return;
       try {
-        const response = await fetch('/api/dashboard/stats', {
-          headers: { 'Authorization': `Bearer ${token}` },
+        const response = await fetch("/api/dashboard/stats", {
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
           const data = await response.json();
           setStats(data);
         }
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        console.error("Failed to fetch stats:", error);
       } finally {
         setIsLoading(false);
       }
@@ -52,32 +52,32 @@ export default function ConstableDashboard() {
 
   const carditems: DashCardItem[] = [
     {
-      title: 'My Reports',
+      title: "My Reports",
       value: 12,
-      icon: <FileText className="h-6 w-6" />,
-      change: '+3 this week',
-      color: 'bg-blue-500',
+      icon: FileText,
+      change: "+3 this week",
+      color: "bg-blue-500",
     },
     {
-      title: 'Active Cases',
+      title: "Active Cases",
       value: stats?.stats.pendingCases.count || 0,
-      icon: <AlertCircle className="h-6 w-6" />,
+      icon: AlertCircle,
       change: `${stats?.stats.pendingCases.urgent || 0} urgent`,
-      color: 'bg-orange-500',
+      color: "bg-orange-500",
     },
     {
-      title: 'Traffic Stops',
+      title: "Traffic Stops",
       value: 23,
-      icon: <Car className="h-6 w-6" />,
-      change: 'This month',
-      color: 'bg-green-500',
+      icon: Car,
+      change: "This month",
+      color: "bg-green-500",
     },
     {
-      title: 'Patrol Hours',
+      title: "Patrol Hours",
       value: 156,
-      icon: <Clock className="h-6 w-6" />,
-      change: 'This month',
-      color: 'bg-purple-500',
+      icon: Clock,
+      change: "This month",
+      color: "bg-purple-500",
     },
   ];
 
@@ -108,8 +108,12 @@ export default function ConstableDashboard() {
               <div className="h-3 w-3 bg-white rounded-full animate-pulse"></div>
               <span className="text-white font-semibold">ON DUTY</span>
             </div>
-            <p className="text-green-100 text-sm">Morning Shift • Patrol Beat: Downtown</p>
-            <p className="text-green-100 text-xs mt-1">Shift ends in 4 hours 23 minutes</p>
+            <p className="text-green-100 text-sm">
+              Morning Shift • Patrol Beat: Downtown
+            </p>
+            <p className="text-green-100 text-xs mt-1">
+              Shift ends in 4 hours 23 minutes
+            </p>
           </div>
           <Calendar className="h-12 w-12 text-green-200 opacity-50" />
         </div>
@@ -118,7 +122,7 @@ export default function ConstableDashboard() {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Link
-          href={'/cases/new'}
+          href={"/cases/new"}
           className="bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl p-5 transition-all group"
         >
           <Plus className="h-8 w-8 text-blue-400 mb-3 group-hover:scale-110 transition-transform" />
@@ -127,7 +131,7 @@ export default function ConstableDashboard() {
         </Link>
 
         <Link
-          href={'/traffic/new'}
+          href={"/traffic/new"}
           className="bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl p-5 transition-all group"
         >
           <Car className="h-8 w-8 text-yellow-400 mb-3 group-hover:scale-110 transition-transform" />
@@ -136,7 +140,7 @@ export default function ConstableDashboard() {
         </Link>
 
         <Link
-          href={'/cases'}
+          href={"/cases"}
           className="bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl p-5 transition-all group"
         >
           <Search className="h-8 w-8 text-green-400 mb-3 group-hover:scale-110 transition-transform" />
@@ -145,7 +149,7 @@ export default function ConstableDashboard() {
         </Link>
 
         <Link
-          href={'/duty-roster'}
+          href={"/duty-roster"}
           className="bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl p-5 transition-all group"
         >
           <Calendar className="h-8 w-8 text-purple-400 mb-3 group-hover:scale-110 transition-transform" />
@@ -159,9 +163,11 @@ export default function ConstableDashboard() {
         {/* My Recent Cases */}
         <div className="bg-white/12 border border-white/20 rounded-xl overflow-hidden">
           <div className="flex justify-between items-center px-4 sm:px-6 py-4 border-b border-white/20">
-            <h3 className="text-base sm:text-lg font-semibold">My Recent Reports</h3>
+            <h3 className="text-base sm:text-lg font-semibold">
+              My Recent Reports
+            </h3>
             <Link
-              href={'/cases?officer=' + user?.id}
+              href={"/cases?officer=" + user?.id}
               className="text-sm text-blue-400 hover:text-blue-300"
             >
               View All
@@ -185,13 +191,17 @@ export default function ConstableDashboard() {
         {/* Today's Patrol Log */}
         <div className="bg-white/12 border border-white/20 rounded-xl overflow-hidden">
           <div className="px-4 sm:px-6 py-4 border-b border-white/20">
-            <h3 className="text-base sm:text-lg font-semibold">Today's Patrol Log</h3>
+            <h3 className="text-base sm:text-lg font-semibold">
+              Today's Patrol Log
+            </h3>
           </div>
           <div className="p-4 sm:p-6 space-y-3">
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 text-blue-400 mt-1 flex-shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">Downtown Patrol</p>
+                <p className="text-sm font-medium text-white">
+                  Downtown Patrol
+                </p>
                 <p className="text-xs text-gray-400 mt-1">
                   06:00 - 09:30 • 3.5 hours
                 </p>
@@ -200,7 +210,9 @@ export default function ConstableDashboard() {
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 text-green-400 mt-1 flex-shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">Market Area Check</p>
+                <p className="text-sm font-medium text-white">
+                  Market Area Check
+                </p>
                 <p className="text-xs text-gray-400 mt-1">
                   09:30 - 11:00 • 1.5 hours
                 </p>
@@ -209,7 +221,9 @@ export default function ConstableDashboard() {
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 text-purple-400 mt-1 flex-shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">School Zone Patrol</p>
+                <p className="text-sm font-medium text-white">
+                  School Zone Patrol
+                </p>
                 <p className="text-xs text-gray-400 mt-1">
                   11:00 - Current • Ongoing
                 </p>
@@ -231,7 +245,8 @@ export default function ConstableDashboard() {
               <div>
                 <h4 className="font-semibold text-red-300 mb-1">High Alert</h4>
                 <p className="text-sm text-red-200">
-                  Be vigilant for suspicious vehicle: White Toyota, Reg: KCA 123X
+                  Be vigilant for suspicious vehicle: White Toyota, Reg: KCA
+                  123X
                 </p>
               </div>
             </div>
@@ -242,7 +257,8 @@ export default function ConstableDashboard() {
               <div>
                 <h4 className="font-semibold text-yellow-300 mb-1">Notice</h4>
                 <p className="text-sm text-yellow-200">
-                  Increased traffic enforcement in CBD area today. Focus on illegal parking.
+                  Increased traffic enforcement in CBD area today. Focus on
+                  illegal parking.
                 </p>
               </div>
             </div>
@@ -251,9 +267,12 @@ export default function ConstableDashboard() {
             <div className="flex items-start gap-3">
               <AlertCircle className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
               <div>
-                <h4 className="font-semibold text-blue-300 mb-1">Information</h4>
+                <h4 className="font-semibold text-blue-300 mb-1">
+                  Information
+                </h4>
                 <p className="text-sm text-blue-200">
-                  Community policing meeting scheduled for tomorrow at 14:00 hrs.
+                  Community policing meeting scheduled for tomorrow at 14:00
+                  hrs.
                 </p>
               </div>
             </div>

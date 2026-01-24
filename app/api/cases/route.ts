@@ -142,7 +142,7 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
     const validation = createCaseSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
-        { error: 'Invalid input', details: validation.error.errors },
+        { error: 'Invalid input', details: validation.error.message },
         { status: 400 }
       );
     }

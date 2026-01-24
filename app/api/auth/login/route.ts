@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const validation = loginSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
-        { error: 'Invalid input', details: validation.error.errors },
+        { error: 'Invalid input', details: validation.error.message },
         { status: 400 }
       );
     }

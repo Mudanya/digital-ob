@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import DashboardCard from '@/components/features/dashboard-card';
-import { DashboardStats, DashCardItem } from '@/types';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import DashboardCard from "@/components/features/dashboard-card";
+import { DashboardStats, DashCardItem } from "@/types";
+import Link from "next/link";
 import {
   FileText,
   AlertCircle,
@@ -16,7 +16,7 @@ import {
   MapPin,
   Shield,
   Activity,
-} from 'lucide-react';
+} from "lucide-react";
 
 export default function IGDashboard() {
   const { token } = useAuth();
@@ -27,15 +27,15 @@ export default function IGDashboard() {
     const fetchStats = async () => {
       if (!token) return;
       try {
-        const response = await fetch('/api/dashboard/stats', {
-          headers: { 'Authorization': `Bearer ${token}` },
+        const response = await fetch("/api/dashboard/stats", {
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
           const data = await response.json();
           setStats(data);
         }
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        console.error("Failed to fetch stats:", error);
       } finally {
         setIsLoading(false);
       }
@@ -58,32 +58,32 @@ export default function IGDashboard() {
 
   const carditems: DashCardItem[] = [
     {
-      title: 'Total Cases (National)',
+      title: "Total Cases (National)",
       value: stats?.stats.totalCases.count || 0,
-      icon: <FileText className="h-6 w-6" />,
+      icon: FileText,
       change: stats?.stats.totalCases.change,
-      color: 'bg-blue-500',
+      color: "bg-blue-500",
     },
     {
-      title: 'Pending Cases',
+      title: "Pending Cases",
       value: stats?.stats.pendingCases.count || 0,
-      icon: <AlertCircle className="h-6 w-6" />,
+      icon: AlertCircle,
       change: `${stats?.stats.pendingCases.urgent || 0} urgent`,
-      color: 'bg-orange-500',
+      color: "bg-orange-500",
     },
     {
-      title: 'Officers Active',
+      title: "Officers Active",
       value: stats?.stats.officersActive.count || 0,
-      icon: <Users className="h-6 w-6" />,
+      icon: Users,
       change: stats?.stats.officersActive.status,
-      color: 'bg-green-500',
+      color: "bg-green-500",
     },
     {
-      title: 'Court Cases',
+      title: "Court Cases",
       value: stats?.stats.courtCases.count || 0,
-      icon: <Scale className="h-6 w-6" />,
+      icon: Scale,
       change: `${stats?.stats.courtCases.thisWeek || 0} this week`,
-      color: 'bg-purple-500',
+      color: "bg-purple-500",
     },
   ];
 
@@ -159,7 +159,9 @@ export default function IGDashboard() {
         >
           <Shield className="h-6 w-6 text-blue-400 mb-2" />
           <h4 className="font-semibold text-white">Add Officer</h4>
-          <p className="text-xs text-gray-400 mt-1">Create new officer account</p>
+          <p className="text-xs text-gray-400 mt-1">
+            Create new officer account
+          </p>
         </Link>
 
         <Link
@@ -177,7 +179,9 @@ export default function IGDashboard() {
         >
           <FileText className="h-6 w-6 text-purple-400 mb-2" />
           <h4 className="font-semibold text-white">National Reports</h4>
-          <p className="text-xs text-gray-400 mt-1">Generate comprehensive reports</p>
+          <p className="text-xs text-gray-400 mt-1">
+            Generate comprehensive reports
+          </p>
         </Link>
 
         <Link
@@ -186,7 +190,9 @@ export default function IGDashboard() {
         >
           <Activity className="h-6 w-6 text-orange-400 mb-2" />
           <h4 className="font-semibold text-white">System Settings</h4>
-          <p className="text-xs text-gray-400 mt-1">Configure system parameters</p>
+          <p className="text-xs text-gray-400 mt-1">
+            Configure system parameters
+          </p>
         </Link>
       </div>
 
@@ -205,10 +211,10 @@ export default function IGDashboard() {
                 <div className="h-10 w-10 bg-blue-500 rounded-full flex-shrink-0" />
                 <div className="flex-1">
                   <h4 className="text-sm font-medium text-white">
-                    {activity.action.replace(/_/g, ' ').toLowerCase()}
+                    {activity.action.replace(/_/g, " ").toLowerCase()}
                   </h4>
                   <p className="text-xs text-gray-400 mt-1">
-                    by {activity.description} •{' '}
+                    by {activity.description} •{" "}
                     {new Date(activity.timestamp).toLocaleString()}
                   </p>
                 </div>

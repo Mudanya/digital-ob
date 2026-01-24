@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withAuth, AuthenticatedRequest } from '@/lib/middleware';
 import { z } from 'zod';
-import { CaseStatus, CasePriority } from '@prisma/client';
+import { withAuth, AuthenticatedRequest } from '@/lib/auth.proxy';
+import { CaseStatus, CasePriority } from '@/types';
+import { verifyToken } from '@/lib/auth';
 
 const updateCaseSchema = z.object({
   status: z.nativeEnum(CaseStatus).optional(),
@@ -12,20 +13,30 @@ const updateCaseSchema = z.object({
 });
 
 interface RouteContext {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-// GET /api/cases/[id] - Get case details
-export const GET = withAuth(
-  async (req: AuthenticatedRequest, context: RouteContext) => {
+// GET /api/cases/[id] - Get case details //TODO: allow access
+export const GET =
+  async (req: NextRequest, { params }: RouteContext) => {
     try {
-      if (!req.user) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const authHeader = req.headers.get('authorization');
+      if (!authHeader) {
+        return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+      }
+      const { id } = await params;
+      const token = authHeader.substring(7);
+
+      const user = verifyToken(token);
+
+      if (!user) {
+        return NextResponse.json({ success: false, message: 'Invalid token' }, { status: 401 });
       }
 
-      const { id } = context.params;
+
+
 
       const caseData = await prisma.case.findUnique({
         where: { id },
@@ -79,17 +90,17 @@ export const GET = withAuth(
 
       // Check access permissions
       if (
-        req.user.role !== 'INSPECTOR_GENERAL' &&
-        req.user.role !== 'DEPUTY_INSPECTOR_GENERAL'
+        user.role !== 'INSPECTOR_GENERAL' &&
+        user.role !== 'DEPUTY_INSPECTOR_GENERAL'
       ) {
-        if (req.user.role === 'COUNTY_COMMANDER') {
+        if (user.role === 'COUNTY_COMMANDER') {
           const station = await prisma.station.findUnique({
             where: { id: caseData.stationId },
           });
-          if (station?.countyId !== req.user.countyId) {
+          if (station?.countyId !== user.countyId) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
           }
-        } else if (caseData.stationId !== req.user.stationId) {
+        } else if (caseData.stationId !== user.stationId) {
           return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
       }
@@ -103,24 +114,31 @@ export const GET = withAuth(
       );
     }
   }
-);
+
 
 // PATCH /api/cases/[id] - Update case
-export const PATCH = withAuth(
-  async (req: AuthenticatedRequest, context: RouteContext) => {
+export const PATCH =
+  async (req: NextRequest, { params }: RouteContext) => {
     try {
-      if (!req.user) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const authHeader = req.headers.get('authorization');
+      if (!authHeader) {
+        return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
       }
+      const { id } = await params;
+      const token = authHeader.substring(7);
 
-      const { id } = context.params;
+      const user = verifyToken(token);
+
+      if (!user) {
+        return NextResponse.json({ success: false, message: 'Invalid token' }, { status: 401 });
+      }
       const body = await req.json();
 
       // Validate input
       const validation = updateCaseSchema.safeParse(body);
       if (!validation.success) {
         return NextResponse.json(
-          { error: 'Invalid input', details: validation.error.errors },
+          { error: 'Invalid input', details: validation.error.message },
           { status: 400 }
         );
       }
@@ -138,11 +156,11 @@ export const PATCH = withAuth(
 
       // Check permissions
       if (
-        req.user.role !== 'INSPECTOR_GENERAL' &&
-        req.user.role !== 'DEPUTY_INSPECTOR_GENERAL' &&
-        req.user.role !== 'COUNTY_COMMANDER' &&
-        req.user.role !== 'OCS' &&
-        req.user.role !== 'OCPD'
+        user.role !== 'INSPECTOR_GENERAL' &&
+        user.role !== 'DEPUTY_INSPECTOR_GENERAL' &&
+        user.role !== 'COUNTY_COMMANDER' &&
+        user.role !== 'OCS' &&
+        user.role !== 'OCPD'
       ) {
         return NextResponse.json(
           { error: 'Insufficient permissions' },
@@ -208,7 +226,7 @@ export const PATCH = withAuth(
           await tx.caseUpdate.create({
             data: {
               caseId: id,
-              updateBy: req.user!.userId,
+              updateBy: user.userId,
               updateType: 'STATUS_CHANGE',
               description: updateDescription.join('. '),
             },
@@ -234,7 +252,7 @@ export const PATCH = withAuth(
         // Log activity
         await tx.activityLog.create({
           data: {
-            userId: req.user!.userId,
+            userId: user.userId,
             action: 'UPDATE_CASE',
             entityType: 'CASE',
             entityId: id,
@@ -257,21 +275,30 @@ export const PATCH = withAuth(
       );
     }
   }
-);
+
 
 // DELETE /api/cases/[id] - Delete case (admin only)
-export const DELETE = withAuth(
-  async (req: AuthenticatedRequest, context: RouteContext) => {
+export const DELETE =
+  async (req: NextRequest, { params }: RouteContext) => {
     try {
-      if (!req.user) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const authHeader = req.headers.get('authorization');
+      if (!authHeader) {
+        return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+      }
+      const { id } = await params;
+      const token = authHeader.substring(7);
+
+      const user = verifyToken(token);
+
+      if (!user) {
+        return NextResponse.json({ success: false, message: 'Invalid token' }, { status: 401 });
       }
 
       // Only IG, DIG, and OCS can delete
       if (
-        req.user.role !== 'INSPECTOR_GENERAL' &&
-        req.user.role !== 'DEPUTY_INSPECTOR_GENERAL' &&
-        req.user.role !== 'OCS'
+        user.role !== 'INSPECTOR_GENERAL' &&
+        user.role !== 'DEPUTY_INSPECTOR_GENERAL' &&
+        user.role !== 'OCS'
       ) {
         return NextResponse.json(
           { error: 'Insufficient permissions' },
@@ -279,7 +306,6 @@ export const DELETE = withAuth(
         );
       }
 
-      const { id } = context.params;
 
       const existingCase = await prisma.case.findUnique({
         where: { id },
@@ -298,7 +324,7 @@ export const DELETE = withAuth(
         // Log activity
         await tx.activityLog.create({
           data: {
-            userId: req.user!.userId,
+            userId: user.userId,
             action: 'DELETE_CASE',
             entityType: 'CASE',
             entityId: id,
@@ -319,4 +345,4 @@ export const DELETE = withAuth(
       );
     }
   }
-);
+
