@@ -13,8 +13,14 @@ interface RecentCasesProps {
     status: CaseStatus;
     priority: CasePriority;
     location: string;
-    reportedBy: string;
-    station: string;
+    reportedBy: {
+      firstName: string;
+      lastName: string;
+      rank: string;
+    } | string;
+    station: {
+      name: string;
+    } | string;
     createdAt: Date;
   };
 }
@@ -74,6 +80,26 @@ const RecentCases = ({ caseData }: RecentCasesProps) => {
     }
   };
 
+  const formatReportedBy = (reportedBy: any) => {
+    if (typeof reportedBy === 'string') {
+      return reportedBy;
+    }
+    if (reportedBy && typeof reportedBy === 'object') {
+      return `${reportedBy.rank || ''} ${reportedBy.firstName || ''} ${reportedBy.lastName || ''}`.trim();
+    }
+    return 'Unknown';
+  };
+
+  const formatStation = (station: any) => {
+    if (typeof station === 'string') {
+      return station;
+    }
+    if (station && typeof station === 'object') {
+      return station.name || 'Unknown Station';
+    }
+    return 'Unknown Station';
+  };
+
   return (
     <Link
       href={`/cases/${caseData.id}`}
@@ -96,7 +122,9 @@ const RecentCases = ({ caseData }: RecentCasesProps) => {
             <span>•</span>
             <span>{caseData.location}</span>
             <span>•</span>
-            <span>{caseData.reportedBy}</span>
+            <span>{formatReportedBy(caseData.reportedBy)}</span>
+            <span>•</span>
+            <span>{formatStation(caseData.station)}</span>
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">

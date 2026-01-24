@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withAuth, AuthenticatedRequest } from '@/lib/middleware';
+
 import { z } from 'zod';
-import { CaseCategory, CasePriority } from '@prisma/client';
+import { withAuth, AuthenticatedRequest } from '@/lib/auth.proxy';
+import { CaseCategory, CasePriority } from '@/types';
+
 
 const createCaseSchema = z.object({
   title: z.string().min(1, 'Title is required'),

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withAuth, AuthenticatedRequest } from '@/lib/middleware';
+import { AuthenticatedRequest, withAuth } from '@/lib/auth.proxy';
+
 
 export const GET = withAuth(async (req: AuthenticatedRequest) => {
   try {
@@ -41,7 +42,6 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       courtCases,
       recentCases,
       recentActivity,
-      monthlyStats,
     ] = await Promise.all([
       // Total cases
       prisma.case.count({ where: caseWhere }),
@@ -113,13 +113,21 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
 
       // Recent activity
       prisma.activityLog.findMany({
-        where: {
-          user: stationWhere.id
-            ? {
-                stationId: stationWhere.id,
-              }
-            : undefined,
-        },
+        where: req.user!.stationId
+          ? {
+              user: {
+                stationId: req.user!.stationId,
+              },
+            }
+          : req.user!.countyId
+          ? {
+              user: {
+                station: {
+                  countyId: req.user!.countyId,
+                },
+              },
+            }
+          : {},
         include: {
           user: {
             select: {
@@ -132,19 +140,35 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
         orderBy: { createdAt: 'desc' },
         take: 10,
       }),
-
-      // Monthly statistics (last 6 months)
-      prisma.$queryRaw`
-        SELECT 
-          DATE_TRUNC('month', "createdAt") as month,
-          COUNT(*) as count
-        FROM "Case"
-        WHERE "createdAt" >= NOW() - INTERVAL '6 months'
-        ${caseWhere.stationId ? prisma.$queryRaw`AND "stationId" = ${caseWhere.stationId}` : prisma.$queryRaw``}
-        GROUP BY month
-        ORDER BY month DESC
-      `,
     ]);
+
+    // Get cases from last 6 months for monthly stats
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    
+    const recentCasesForStats = await prisma.case.findMany({
+      where: {
+        ...caseWhere,
+        createdAt: {
+          gte: sixMonthsAgo,
+        },
+      },
+      select: {
+        createdAt: true,
+      },
+    });
+
+    // Group by month
+    const monthlyStatsMap = new Map<string, number>();
+    recentCasesForStats.forEach((c) => {
+      const monthKey = `${c.createdAt.getFullYear()}-${String(c.createdAt.getMonth() + 1).padStart(2, '0')}`;
+      monthlyStatsMap.set(monthKey, (monthlyStatsMap.get(monthKey) || 0) + 1);
+    });
+
+    const monthlyStats = Array.from(monthlyStatsMap.entries())
+      .map(([month, count]) => ({ month, count }))
+      .sort((a, b) => b.month.localeCompare(a.month))
+      .slice(0, 6);
 
     // Calculate percentage changes (comparing to last month)
     const lastMonth = new Date();

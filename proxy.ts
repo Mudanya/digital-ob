@@ -13,14 +13,7 @@ export const proxy = (req: NextRequest) => {
         '/api/auth/reset-password',
         '/api/auth/verify-email',
         '/api/landing',
-        '/api/payments/mpesa/callback',
-        '/api/services/top',
-        '/api/locations/zones',
-        '/api/locations/search',
-        '/api/services',
-        '/api/test-env',
-        '/api/payments/mpesa/b2c/timeout',
-        '/api/payments/mpesa/b2c/callback',
+       
 
     ];
     const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));

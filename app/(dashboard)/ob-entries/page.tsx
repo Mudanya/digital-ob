@@ -1,229 +1,226 @@
-"use client";
-import DataTable from "@/components/layouts/data-table";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+'use client';
 
-import { ObEntry } from "@/types";
-import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, PlusCircle } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/auth-context';
+import DashboardLayout from '@/components/layout/dashboard-layout';
+import Link from 'next/link';
+import { Plus, Search, Filter, FileText, Calendar } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
-const entries: ObEntry[] = [
-  {
-    id: 1,
-    obNumber: "OB/2024/001567",
-    dateTime: "12 Oct 2024, 14:30",
-    description: "Armed Robbery - Westlands Area",
-    officer: "PC Mary Wanjiku",
-    priority: "urgent",
-  },
-  {
-    id: 2,
-    obNumber: "OB/2024/001566",
-    dateTime: "12 Oct 2024, 10:15",
-    description: "Traffic Accident - Uhuru Highway",
-    officer: "Cpl James Ochieng",
-    priority: "high",
-  },
-  {
-    id: 3,
-    obNumber: "OB/2024/001565",
-    dateTime: "12 Oct 2024, 08:45",
-    description: "Lost Document Report",
-    officer: "PC Grace Muthoni",
-    priority: "medium",
-  },
-  {
-    id: 4,
-    obNumber: "OB/2024/001564",
-    dateTime: "11 Oct 2024, 22:30",
-    description: "Domestic Disturbance - Kilimani",
-    officer: "PC Mary Wanjiku",
-    priority: "low",
-  },
-  {
-    id: 5,
-    obNumber: "OB/2024/001563",
-    dateTime: "11 Oct 2024, 19:00",
-    description: "Theft of Mobile Phone - CBD",
-    officer: "Cpl James Ochieng",
-    priority: "medium",
-  },
-];
+interface OBEntry {
+  id: string;
+  entryNumber: number;
+  case: {
+    id: string;
+    obNumber: string;
+    title: string;
+    category: string;
+    status: string;
+    priority: string;
+  };
+  officer: {
+    firstName: string;
+    lastName: string;
+    rank: string;
+  };
+  station: {
+    name: string;
+  };
+  entryDate: string;
+  description: string;
+}
 
-export const columns: ColumnDef<ObEntry>[] = [
-  {
-    accessorKey: "obNumber",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          OB Number
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("obNumber")}</div>
-    ),
-  },
-  {
-    accessorKey: "dateTime",
-    header: "Date & Time",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("dateTime")}</div>
-    ),
-  },
-  {
-    accessorKey: "description",
-    header: "Description",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("description")}</div>
-    ),
-  },
-  {
-    accessorKey: "officer",
-    header: "Officer",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("officer")}</div>
-    ),
-  },
-  {
-    accessorKey: "priority",
-    header: "Priority",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("priority")}</div>
-    ),
-  },
+export default function OBEntriesPage() {
+  const { token } = useAuth();
+  const [entries, setEntries] = useState<OBEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const entry = row.original;
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(`${entry.id}`)}
-            >
-              Copy entry ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View entry details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
+  useEffect(() => {
+    fetchEntries();
+  }, [token]);
 
-// const getPriorityColor = (priority: string) => {
-//   switch (priority) {
-//     case "urgent":
-//       return "bg-red-500/20 text-red-300 hover:bg-red-500/30";
-//     case "high":
-//       return "bg-amber-500/20 text-amber-300 hover:bg-amber-500/30";
-//     case "medium":
-//       return "bg-blue-500/20 text-blue-300 hover:bg-blue-500/30";
-//     case "low":
-//       return "bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30";
-//     default:
-//       return "bg-gray-500/20 text-gray-300 hover:bg-gray-500/30";
-//   }
-// };
-const ObEntries = () => {
+  const fetchEntries = async () => {
+    if (!token) return;
+    
+    try {
+      const response = await fetch('/api/ob-entries', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setEntries(data.entries || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch OB entries:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'URGENT': return 'bg-red-500/20 text-red-400 border-red-500/30';
+      case 'HIGH': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+      case 'MEDIUM': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      case 'LOW': return 'bg-green-500/20 text-green-400 border-green-500/30';
+      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'REPORTED': return 'bg-blue-500/20 text-blue-400';
+      case 'UNDER_INVESTIGATION': return 'bg-purple-500/20 text-purple-400';
+      case 'RESOLVED': return 'bg-green-500/20 text-green-400';
+      case 'CLOSED': return 'bg-gray-500/20 text-gray-400';
+      default: return 'bg-gray-500/20 text-gray-400';
+    }
+  };
+
   return (
-    <main className="flex-1 p-6 overflow-y-auto h-[calc(100vh-80px)]">
-      {/* Page Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h2 className="text-3xl font-bold text-white mb-2">OB Entries</h2>
-          <p className="text-blue-200">
-            View and manage all occurrence book entries
-          </p>
+    <DashboardLayout>
+      <div className="p-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-white">OB Entries</h1>
+            <p className="text-gray-400 mt-1">Digital Occurrence Book Records</p>
+          </div>
+          <Link
+            href="/cases/new"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+          >
+            <Plus className="h-5 w-5" />
+            New OB Entry
+          </Link>
         </div>
-        <Button className="bg-blue-700 hover:bg-blue-800 text-white">
-          <PlusCircle className="w-5 h-5 mr-2" />
-          New Entry
-        </Button>
+
+        {/* Search and Filters */}
+        <div className="bg-white/10 rounded-xl border border-white/20 p-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by OB number, title, or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <button className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors">
+              <Filter className="h-5 w-5" />
+              Filters
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors">
+              <Calendar className="h-5 w-5" />
+              Date Range
+            </button>
+          </div>
+        </div>
+
+        {/* OB Entries List */}
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mx-auto"></div>
+            <p className="text-gray-400 mt-4">Loading OB entries...</p>
+          </div>
+        ) : entries.length === 0 ? (
+          <div className="bg-white/10 rounded-xl border border-white/20 p-12 text-center">
+            <FileText className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">No OB Entries Found</h3>
+            <p className="text-gray-400 mb-6">Get started by creating your first OB entry</p>
+            <Link
+              href="/cases/new"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              <Plus className="h-5 w-5" />
+              Create First Entry
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {entries
+              .filter(entry => 
+                entry.case.obNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                entry.case.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                entry.description.toLowerCase().includes(searchTerm.toLowerCase())
+              )
+              .map((entry) => (
+                <Link
+                  key={entry.id}
+                  href={`/cases/${entry.case.id}`}
+                  className="block bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl p-6 transition-all"
+                >
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-blue-400 font-mono font-bold">
+                          #{entry.entryNumber}
+                        </span>
+                        <span className="text-white font-semibold">
+                          {entry.case.obNumber}
+                        </span>
+                        <Badge className={getPriorityColor(entry.case.priority)}>
+                          {entry.case.priority}
+                        </Badge>
+                        <Badge className={getStatusColor(entry.case.status)}>
+                          {entry.case.status.replace(/_/g, ' ')}
+                        </Badge>
+                      </div>
+                      
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {entry.case.title}
+                      </h3>
+                      
+                      <p className="text-gray-400 text-sm mb-3 line-clamp-2">
+                        {entry.description}
+                      </p>
+                      
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                        <span className="flex items-center gap-1">
+                          <FileText className="h-4 w-4" />
+                          {entry.case.category.replace(/_/g, ' ')}
+                        </span>
+                        <span>
+                          By: {entry.officer.rank} {entry.officer.firstName} {entry.officer.lastName}
+                        </span>
+                        <span>{entry.station.name}</span>
+                        <span>
+                          {new Date(entry.entryDate).toLocaleDateString()} at{' '}
+                          {new Date(entry.entryDate).toLocaleTimeString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {entries.length > 0 && (
+          <div className="flex justify-center gap-2 mt-6">
+            <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors">
+              Previous
+            </button>
+            <button className="px-4 py-2 bg-blue-600 border border-blue-600 rounded-lg">
+              1
+            </button>
+            <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors">
+              2
+            </button>
+            <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors">
+              3
+            </button>
+            <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors">
+              Next
+            </button>
+          </div>
+        )}
       </div>
-
-      {/* Filters Card */}
-      <Card className="bg-white/10 backdrop-blur-md border-white/20 p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm text-blue-200">Priority</label>
-            <Select>
-              <SelectTrigger className="bg-white/10 w-full rounded-lg p-2 border-white/20 text-white">
-                <SelectValue placeholder="All Priorities" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>All Priorities</SelectLabel>
-                  <SelectItem value="all">All Priorities</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-sm text-blue-200">Category</label>
-            <Select>
-              <SelectTrigger className="bg-white/10 border-white/20 w-full rounded-lg p-2 text-white">
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="theft">Theft</SelectItem>
-                <SelectItem value="assault">Assault</SelectItem>
-                <SelectItem value="traffic">Traffic</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </Card>
-
-      {/* Entries Table */}
-      <Card className="bg-white/10 backdrop-blur-md border-white/20 overflow-hidden">
-        <div className="overflow-x-auto">
-          <DataTable columns={columns} data={entries} />
-        </div>
-
-        
-      </Card>
-    </main> 
+    </DashboardLayout>
   );
-};
-
-export default ObEntries;
+}
