@@ -185,6 +185,7 @@ export default function CasesPage() {
         ) : (
           <div className="space-y-4">
             {filteredCases?.map((caseItem) => (
+              
               <div key={caseItem?.id} className="bg-white/10 border border-white/20 rounded-xl p-6 hover:bg-white/15 transition-all">
                 <RecentCases caseData={caseItem} />
               </div>
