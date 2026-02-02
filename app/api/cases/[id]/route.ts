@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
 import { withAuth, AuthenticatedRequest } from '@/lib/auth.proxy';
-import { CaseStatus, CasePriority } from '@/types';
+import { z } from 'zod';
+
 import { verifyToken } from '@/lib/auth';
+import { CaseStatus, CasePriority } from '@/types';
 
 const updateCaseSchema = z.object({
-  status: z.nativeEnum(CaseStatus).optional(),
-  priority: z.nativeEnum(CasePriority).optional(),
+  status: z.enum(CaseStatus).optional(),
+  priority: z.enum(CasePriority).optional(),
   assignedToId: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -18,7 +19,7 @@ interface RouteContext {
   }>;
 }
 
-// GET /api/cases/[id] - Get case details //TODO: allow access
+// GET /api/cases/[id] - Get case details
 export const GET =
   async (req: NextRequest, { params }: RouteContext) => {
     try {
@@ -26,7 +27,7 @@ export const GET =
       if (!authHeader) {
         return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
       }
-      const { id } = await params;
+      const { id } = await params
       const token = authHeader.substring(7);
 
       const user = verifyToken(token);
@@ -34,7 +35,6 @@ export const GET =
       if (!user) {
         return NextResponse.json({ success: false, message: 'Invalid token' }, { status: 401 });
       }
-
 
 
 
@@ -124,7 +124,7 @@ export const PATCH =
       if (!authHeader) {
         return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
       }
-      const { id } = await params;
+      const { id } = await params
       const token = authHeader.substring(7);
 
       const user = verifyToken(token);
@@ -138,7 +138,7 @@ export const PATCH =
       const validation = updateCaseSchema.safeParse(body);
       if (!validation.success) {
         return NextResponse.json(
-          { error: 'Invalid input', details: validation.error.message },
+          { error: 'Invalid input', details: validation.error.issues },
           { status: 400 }
         );
       }
@@ -226,7 +226,7 @@ export const PATCH =
           await tx.caseUpdate.create({
             data: {
               caseId: id,
-              updateBy: user.userId,
+              updateBy: user!.userId,
               updateType: 'STATUS_CHANGE',
               description: updateDescription.join('. '),
             },
@@ -252,7 +252,7 @@ export const PATCH =
         // Log activity
         await tx.activityLog.create({
           data: {
-            userId: user.userId,
+            userId: user!.userId,
             action: 'UPDATE_CASE',
             entityType: 'CASE',
             entityId: id,
@@ -285,7 +285,7 @@ export const DELETE =
       if (!authHeader) {
         return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
       }
-      const { id } = await params;
+      const { id } = await params
       const token = authHeader.substring(7);
 
       const user = verifyToken(token);
@@ -324,7 +324,7 @@ export const DELETE =
         // Log activity
         await tx.activityLog.create({
           data: {
-            userId: user.userId,
+            userId: user!.userId,
             action: 'DELETE_CASE',
             entityType: 'CASE',
             entityId: id,
@@ -345,4 +345,3 @@ export const DELETE =
       );
     }
   }
-
