@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-
-import { z } from 'zod';
 import { withAuth, AuthenticatedRequest } from '@/lib/auth.proxy';
+import { z } from 'zod';
 import { CaseCategory, CasePriority } from '@/types';
 
 
 const createCaseSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
-  category: z.nativeEnum(CaseCategory),
-  priority: z.nativeEnum(CasePriority).optional(),
+  category: z.enum(CaseCategory),
+  priority: z.enum(CasePriority).optional(),
   location: z.string().min(1, 'Location is required'),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
-  incidentDate: z.string().datetime(),
+  incidentDate: z.string().min(1, 'Incident date is required'),
   stationId: z.string().optional(),
 });
 
@@ -234,7 +233,7 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
           stationId,
           officerId: req.user!.userId,
           description: data.description,
-        },  
+        },
       });
 
       // Log activity

@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import DashboardLayout from '@/components/layout/dashboard-layout';
-import RecentCases from '@/components/features/recent-cases';
 import Link from 'next/link';
-import { Plus, Search, Filter, SlidersHorizontal } from 'lucide-react';
+import { Plus, Search, Filter, SlidersHorizontal, FileText } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default function CasesPage() {
   const { token } = useAuth();
@@ -15,6 +15,26 @@ export default function CasesPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'URGENT': return 'bg-red-500/20 text-red-400 border-red-500/30';
+      case 'HIGH': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+      case 'MEDIUM': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      case 'LOW': return 'bg-green-500/20 text-green-400 border-green-500/30';
+      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'REPORTED': return 'bg-blue-500/20 text-blue-400';
+      case 'UNDER_INVESTIGATION': return 'bg-purple-500/20 text-purple-400';
+      case 'RESOLVED': return 'bg-green-500/20 text-green-400';
+      case 'CLOSED': return 'bg-gray-500/20 text-gray-400';
+      default: return 'bg-gray-500/20 text-gray-400';
+    }
+  };
 
   useEffect(() => {
     fetchCases();
@@ -184,11 +204,46 @@ export default function CasesPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredCases?.map((caseItem) => (
-              
-              <div key={caseItem?.id} className="bg-white/10 border border-white/20 rounded-xl p-6 hover:bg-white/15 transition-all">
-                <RecentCases caseData={caseItem} />
-              </div>
+            {filteredCases.map((caseItem) => (
+              <Link
+                key={caseItem.id}
+                href={`/cases/${caseItem.id}`}
+                className="block bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl p-6 transition-all"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <h3 className="text-xl font-semibold text-white">
+                        {caseItem.obNumber}
+                      </h3>
+                      <Badge className={getPriorityColor(caseItem.priority)}>
+                        {caseItem.priority}
+                      </Badge>
+                      <Badge className={getStatusColor(caseItem.status)}>
+                        {caseItem.status.replace(/_/g, ' ')}
+                      </Badge>
+                    </div>
+                    <p className="text-lg text-gray-200 mb-3">{caseItem.title}</p>
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+                      <span className="flex items-center gap-1">
+                        <FileText className="h-4 w-4" />
+                        {caseItem.category.replace(/_/g, ' ')}
+                      </span>
+                      <span>•</span>
+                      <span>{caseItem.location}</span>
+                      <span>•</span>
+                      <span>
+                        {caseItem.reportedBy.rank} {caseItem.reportedBy.firstName}{' '}
+                        {caseItem.reportedBy.lastName}
+                      </span>
+                      <span>•</span>
+                      <span>{caseItem.station.name}</span>
+                      <span>•</span>
+                      <span>{new Date(caseItem.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
         )}

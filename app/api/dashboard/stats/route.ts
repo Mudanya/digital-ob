@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { AuthenticatedRequest, withAuth } from '@/lib/auth.proxy';
-
+import { withAuth, AuthenticatedRequest } from '@/lib/auth.proxy';
 
 export const GET = withAuth(async (req: AuthenticatedRequest) => {
   try {
@@ -115,19 +114,19 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       prisma.activityLog.findMany({
         where: req.user!.stationId
           ? {
-              user: {
-                stationId: req.user!.stationId,
-              },
-            }
+            user: {
+              stationId: req.user!.stationId,
+            },
+          }
           : req.user!.countyId
-          ? {
+            ? {
               user: {
                 station: {
                   countyId: req.user!.countyId,
                 },
               },
             }
-          : {},
+            : {},
         include: {
           user: {
             select: {
@@ -145,7 +144,7 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
     // Get cases from last 6 months for monthly stats
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    
+
     const recentCasesForStats = await prisma.case.findMany({
       where: {
         ...caseWhere,
