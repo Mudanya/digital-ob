@@ -170,7 +170,7 @@ export default function ReportsPage() {
       summaryData.push(['Summary Statistics'], []);
       Object.entries(reportData.data.summary).forEach(([key, value]) => {
         if (typeof value === 'number') {
-          summaryData.push([key, value]);
+          summaryData.push([key, `$${value}`]);
         }
       });
     }

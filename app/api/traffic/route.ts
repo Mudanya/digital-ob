@@ -117,7 +117,7 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
         fineAmount: fineAmount ? parseFloat(fineAmount) : null,
         isPaid: false,
         offenseDate: new Date(),
-        officerId: req.user.id,
+        officerId: req.user.userId,
       },
       include: {
         officer: {
