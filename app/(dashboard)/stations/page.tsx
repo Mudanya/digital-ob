@@ -359,7 +359,7 @@ export default function StationsPage() {
                       <SelectValue placeholder="Select County" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/10">
-                      <SelectItem value="" className="text-white">
+                      <SelectItem value="all" className="text-white">
                         Select County
                       </SelectItem>
                       {counties.map((county) => (

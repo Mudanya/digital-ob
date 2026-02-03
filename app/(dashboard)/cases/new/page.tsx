@@ -81,7 +81,7 @@ export default function NewCasePage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-6">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-white">New OB Entry</h1>

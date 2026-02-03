@@ -91,7 +91,7 @@ const NewOBEntry = () => {
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/10">
-                      <SelectItem value="" className="text-white">Select category</SelectItem>
+                      <SelectItem value="-" className="text-white">Select category</SelectItem>
                       <SelectItem value="theft" className="text-white">Theft</SelectItem>
                       <SelectItem value="assault" className="text-white">Assault</SelectItem>
                       <SelectItem value="traffic" className="text-white">Traffic Incident</SelectItem>
@@ -113,7 +113,7 @@ const NewOBEntry = () => {
                       <SelectValue placeholder="Select sub-category" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/10">
-                      <SelectItem value="" className="text-white">Select sub-category</SelectItem>
+                      <SelectItem value="-" className="text-white">Select sub-category</SelectItem>
                       <SelectItem value="armed" className="text-white">Armed</SelectItem>
                       <SelectItem value="unarmed" className="text-white">Unarmed</SelectItem>
                       <SelectItem value="vehicle" className="text-white">Vehicle Related</SelectItem>
@@ -175,7 +175,7 @@ const NewOBEntry = () => {
                       <SelectValue placeholder="Select sub-county" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/10">
-                      <SelectItem value="" className="text-white">Select sub-county</SelectItem>
+                      <SelectItem value="-" className="text-white">Select sub-county</SelectItem>
                       <SelectItem value="westlands" className="text-white">Westlands</SelectItem>
                       <SelectItem value="dagoretti" className="text-white">Dagoretti</SelectItem>
                       <SelectItem value="langata" className="text-white">Lang&apos;ata</SelectItem>
@@ -331,7 +331,7 @@ const NewOBEntry = () => {
                       <SelectValue placeholder="Select officer" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/10">
-                      <SelectItem value="" className="text-white">Select officer</SelectItem>
+                      <SelectItem value="-" className="text-white">Select officer</SelectItem>
                       <SelectItem value="officer1" className="text-white">PC Mary Wanjiku</SelectItem>
                       <SelectItem value="officer2" className="text-white">Cpl James Ochieng</SelectItem>
                       <SelectItem value="officer3" className="text-white">PC Grace Muthoni</SelectItem>

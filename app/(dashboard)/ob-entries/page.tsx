@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import DashboardLayout from '@/components/layout/dashboard-layout';
-import Link from 'next/link';
-import { Plus, Search, Filter, FileText, Calendar } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import DashboardLayout from "@/components/layout/dashboard-layout";
+import Link from "next/link";
+import { Plus, Search, Filter, FileText, Calendar } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 
 interface OBEntry {
   id: string;
@@ -35,7 +35,7 @@ export default function OBEntriesPage() {
   const { token } = useAuth();
   const [entries, setEntries] = useState<OBEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchEntries();
@@ -43,18 +43,18 @@ export default function OBEntriesPage() {
 
   const fetchEntries = async () => {
     if (!token) return;
-    
+
     try {
-      const response = await fetch('/api/ob-entries', {
-        headers: { 'Authorization': `Bearer ${token}` },
+      const response = await fetch("/api/ob-entries", {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setEntries(data.entries || []);
       }
     } catch (error) {
-      console.error('Failed to fetch OB entries:', error);
+      console.error("Failed to fetch OB entries:", error);
     } finally {
       setIsLoading(false);
     }
@@ -62,21 +62,31 @@ export default function OBEntriesPage() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'URGENT': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      case 'HIGH': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-      case 'MEDIUM': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'LOW': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+      case "URGENT":
+        return "bg-red-500/20 text-red-400 border-red-500/30";
+      case "HIGH":
+        return "bg-orange-500/20 text-orange-400 border-orange-500/30";
+      case "MEDIUM":
+        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+      case "LOW":
+        return "bg-green-500/20 text-green-400 border-green-500/30";
+      default:
+        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'REPORTED': return 'bg-blue-500/20 text-blue-400';
-      case 'UNDER_INVESTIGATION': return 'bg-purple-500/20 text-purple-400';
-      case 'RESOLVED': return 'bg-green-500/20 text-green-400';
-      case 'CLOSED': return 'bg-gray-500/20 text-gray-400';
-      default: return 'bg-gray-500/20 text-gray-400';
+      case "REPORTED":
+        return "bg-blue-500/20 text-blue-400";
+      case "UNDER_INVESTIGATION":
+        return "bg-purple-500/20 text-purple-400";
+      case "RESOLVED":
+        return "bg-green-500/20 text-green-400";
+      case "CLOSED":
+        return "bg-gray-500/20 text-gray-400";
+      default:
+        return "bg-gray-500/20 text-gray-400";
     }
   };
 
@@ -87,7 +97,9 @@ export default function OBEntriesPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-bold text-white">OB Entries</h1>
-            <p className="text-gray-400 mt-1">Digital Occurrence Book Records</p>
+            <p className="text-gray-400 mt-1">
+              Digital Occurrence Book Records
+            </p>
           </div>
           <Link
             href="/cases/new"
@@ -131,8 +143,12 @@ export default function OBEntriesPage() {
         ) : entries.length === 0 ? (
           <div className="bg-white/10 rounded-xl border border-white/20 p-12 text-center">
             <FileText className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">No OB Entries Found</h3>
-            <p className="text-gray-400 mb-6">Get started by creating your first OB entry</p>
+            <h3 className="text-xl font-semibold text-white mb-2">
+              No OB Entries Found
+            </h3>
+            <p className="text-gray-400 mb-6">
+              Get started by creating your first OB entry
+            </p>
             <Link
               href="/cases/new"
               className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors"
@@ -144,10 +160,17 @@ export default function OBEntriesPage() {
         ) : (
           <div className="space-y-4">
             {entries
-              .filter(entry => 
-                entry.case.obNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                entry.case.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                entry.description.toLowerCase().includes(searchTerm.toLowerCase())
+              .filter(
+                (entry) =>
+                  entry.case.obNumber
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase()) ||
+                  entry.case.title
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase()) ||
+                  entry.description
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase()),
               )
               .map((entry) => (
                 <Link
@@ -157,40 +180,46 @@ export default function OBEntriesPage() {
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-blue-400 font-mono font-bold">
-                          #{entry.entryNumber}
-                        </span>
-                        <span className="text-white font-semibold">
-                          {entry.case.obNumber}
-                        </span>
-                        <Badge className={getPriorityColor(entry.case.priority)}>
-                          {entry.case.priority}
-                        </Badge>
+                      <div className="flex flex-col md:flex-row items-center gap-3 mb-2">
+                        <div className="flex items-center gap-3">
+                          <span className="text-blue-400 font-mono font-bold">
+                            #{entry.entryNumber}
+                          </span>
+                          <span className="text-white font-semibold">
+                            {entry.case.obNumber}
+                          </span>
+                          <Badge
+                            className={getPriorityColor(entry.case.priority)}
+                          >
+                            {entry.case.priority}
+                          </Badge>
+                        </div>
+
                         <Badge className={getStatusColor(entry.case.status)}>
-                          {entry.case.status.replace(/_/g, ' ')}
+                          {entry.case.status.replace(/_/g, " ")}
                         </Badge>
                       </div>
-                      
+
                       <h3 className="text-lg font-semibold text-white mb-2">
                         {entry.case.title}
                       </h3>
-                      
+
                       <p className="text-gray-400 text-sm mb-3 line-clamp-2">
                         {entry.description}
                       </p>
-                      
+
                       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                         <span className="flex items-center gap-1">
                           <FileText className="h-4 w-4" />
-                          {entry.case.category.replace(/_/g, ' ')}
+                          {entry.case.category.replace(/_/g, " ")}
                         </span>
                         <span>
-                          By: {entry.officer.rank} {entry.officer.firstName} {entry.officer.lastName}
+                          By: {entry.officer.rank} {entry.officer.firstName}{" "}
+                          {entry.officer.lastName}
                         </span>
                         <span>{entry.station.name}</span>
                         <span>
-                          {new Date(entry.entryDate).toLocaleDateString()} at{' '}
+                          {new Date(entry.entryDate).toLocaleDateString()} at{" "}
                           {new Date(entry.entryDate).toLocaleTimeString()}
                         </span>
                       </div>
