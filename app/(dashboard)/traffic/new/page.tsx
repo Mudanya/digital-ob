@@ -1,59 +1,67 @@
-'use client';
+"use client";
 
-import { useState, FormEvent } from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/layout/dashboard-layout';
-import { Save, X, Car, User, AlertCircle } from 'lucide-react';
-import Link from 'next/link';
+import { useState, FormEvent } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
+import DashboardLayout from "@/components/layout/dashboard-layout";
+import { Save, X, Car, User, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function NewTrafficOffensePage() {
   const { token } = useAuth();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
-    vehicleReg: '',
-    driverName: '',
-    driverIdNumber: '',
-    driverLicense: '',
-    offenseType: 'SPEEDING',
-    location: '',
-    fineAmount: '',
-    latitude: '',
-    longitude: '',
+    vehicleReg: "",
+    driverName: "",
+    driverIdNumber: "",
+    driverLicense: "",
+    offenseType: "SPEEDING",
+    location: "",
+    fineAmount: "",
+    latitude: "",
+    longitude: "",
   });
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/traffic', {
-        method: 'POST',
+      const response = await fetch("/api/traffic", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        router.push('/traffic');
+        router.push("/traffic");
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to create offense');
+        setError(errorData.error || "Failed to create offense");
       }
     } catch (error) {
-      setError('An unexpected error occurred');
+      setError("An unexpected error occurred");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -85,20 +93,20 @@ export default function NewTrafficOffensePage() {
               <Car className="h-5 w-5 text-yellow-400" />
               Vehicle Information
             </h3>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Vehicle Registration <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="vehicleReg"
                   value={formData.vehicleReg}
                   onChange={handleChange}
                   required
                   placeholder="e.g., KAA 123A"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 uppercase"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500 uppercase"
                 />
               </div>
             </div>
@@ -110,20 +118,20 @@ export default function NewTrafficOffensePage() {
               <User className="h-5 w-5 text-blue-400" />
               Driver Information
             </h3>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Driver Name <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="driverName"
                   value={formData.driverName}
                   onChange={handleChange}
                   required
                   placeholder="Full name of driver"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
 
@@ -131,13 +139,13 @@ export default function NewTrafficOffensePage() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Driver ID Number
                 </label>
-                <input
+                <Input
                   type="text"
                   name="driverIdNumber"
                   value={formData.driverIdNumber}
                   onChange={handleChange}
                   placeholder="National ID or Passport number"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
 
@@ -145,13 +153,13 @@ export default function NewTrafficOffensePage() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Driver License Number
                 </label>
-                <input
+                <Input
                   type="text"
                   name="driverLicense"
                   value={formData.driverLicense}
                   onChange={handleChange}
                   placeholder="DL number (optional)"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
             </div>
@@ -159,46 +167,77 @@ export default function NewTrafficOffensePage() {
 
           {/* Offense Details */}
           <div className="bg-white/10 rounded-xl border border-white/20 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Offense Details</h3>
-            
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Offense Details
+            </h3>
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Offense Type <span className="text-red-400">*</span>
                 </label>
-                <select
-                  name="offenseType"
+                <Select
                   value={formData.offenseType}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, offenseType: value })
+                  }
                 >
-                  <option value="SPEEDING">Speeding</option>
-                  <option value="NO_LICENSE">No License</option>
-                  <option value="NO_INSURANCE">No Insurance</option>
-                  <option value="DRUNK_DRIVING">Drunk Driving</option>
-                  <option value="RECKLESS_DRIVING">Reckless Driving</option>
-                  <option value="ILLEGAL_PARKING">Illegal Parking</option>
-                  <option value="RED_LIGHT">Running Red Light</option>
-                  <option value="OVERLOADING">Overloading</option>
-                  <option value="NO_SEATBELT">No Seatbelt</option>
-                  <option value="PHONE_WHILE_DRIVING">Phone While Driving</option>
-                  <option value="OTHER">Other</option>
-                </select>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-white/10">
+                    <SelectItem value="SPEEDING" className="text-white">
+                      Speeding
+                    </SelectItem>
+                    <SelectItem value="NO_LICENSE" className="text-white">
+                      No License
+                    </SelectItem>
+                    <SelectItem value="NO_INSURANCE" className="text-white">
+                      No Insurance
+                    </SelectItem>
+                    <SelectItem value="DRUNK_DRIVING" className="text-white">
+                      Drunk Driving
+                    </SelectItem>
+                    <SelectItem value="RECKLESS_DRIVING" className="text-white">
+                      Reckless Driving
+                    </SelectItem>
+                    <SelectItem value="ILLEGAL_PARKING" className="text-white">
+                      Illegal Parking
+                    </SelectItem>
+                    <SelectItem value="RED_LIGHT" className="text-white">
+                      Running Red Light
+                    </SelectItem>
+                    <SelectItem value="OVERLOADING" className="text-white">
+                      Overloading
+                    </SelectItem>
+                    <SelectItem value="NO_SEATBELT" className="text-white">
+                      No Seatbelt
+                    </SelectItem>
+                    <SelectItem
+                      value="PHONE_WHILE_DRIVING"
+                      className="text-white"
+                    >
+                      Phone While Driving
+                    </SelectItem>
+                    <SelectItem value="OTHER" className="text-white">
+                      Other
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Location <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
                   required
                   placeholder="Where the offense occurred"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
 
@@ -206,13 +245,13 @@ export default function NewTrafficOffensePage() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Fine Amount (KES)
                 </label>
-                <input
+                <Input
                   type="number"
                   name="fineAmount"
                   value={formData.fineAmount}
                   onChange={handleChange}
                   placeholder="e.g., 5000"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
 
@@ -221,14 +260,14 @@ export default function NewTrafficOffensePage() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Latitude
                   </label>
-                  <input
+                  <Input
                     type="number"
                     step="any"
                     name="latitude"
                     value={formData.latitude}
                     onChange={handleChange}
                     placeholder="e.g., -1.2921"
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                   />
                 </div>
 
@@ -236,14 +275,14 @@ export default function NewTrafficOffensePage() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Longitude
                   </label>
-                  <input
+                  <Input
                     type="number"
                     step="any"
                     name="longitude"
                     value={formData.longitude}
                     onChange={handleChange}
                     placeholder="e.g., 36.8219"
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                   />
                 </div>
               </div>

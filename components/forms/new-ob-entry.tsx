@@ -2,6 +2,9 @@
 import React, { useState } from 'react';
 import { X, FilePlus, Info, FileText, AlertCircle, MapPin, Users, Paperclip, ClipboardCheck, UploadCloud, Save, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 const NewOBEntry = () => {
     const [selectedPriority, setSelectedPriority] = useState('medium');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -72,9 +75,9 @@ const NewOBEntry = () => {
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Entry Title <span className="text-red-400">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors"
+                    className="bg-white/10 border-white/20 text-white placeholder-gray-400 text-sm py-3"
                     placeholder="Brief title of the incident"
                     required
                   />
@@ -83,30 +86,40 @@ const NewOBEntry = () => {
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Category <span className="text-red-400">*</span>
                   </label>
-                  <select className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors" required>
-                    <option value="" className="bg-slate-800">Select category</option>
-                    <option value="theft" className="bg-slate-800">Theft</option>
-                    <option value="assault" className="bg-slate-800">Assault</option>
-                    <option value="traffic" className="bg-slate-800">Traffic Incident</option>
-                    <option value="domestic" className="bg-slate-800">Domestic Disturbance</option>
-                    <option value="robbery" className="bg-slate-800">Robbery</option>
-                    <option value="burglary" className="bg-slate-800">Burglary</option>
-                    <option value="missing" className="bg-slate-800">Missing Person</option>
-                    <option value="accident" className="bg-slate-800">Accident</option>
-                    <option value="other" className="bg-slate-800">Other</option>
-                  </select>
+                  <Select>
+                    <SelectTrigger className="bg-white/10 border-white/20 text-white text-sm py-3">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-white/10">
+                      <SelectItem value="" className="text-white">Select category</SelectItem>
+                      <SelectItem value="theft" className="text-white">Theft</SelectItem>
+                      <SelectItem value="assault" className="text-white">Assault</SelectItem>
+                      <SelectItem value="traffic" className="text-white">Traffic Incident</SelectItem>
+                      <SelectItem value="domestic" className="text-white">Domestic Disturbance</SelectItem>
+                      <SelectItem value="robbery" className="text-white">Robbery</SelectItem>
+                      <SelectItem value="burglary" className="text-white">Burglary</SelectItem>
+                      <SelectItem value="missing" className="text-white">Missing Person</SelectItem>
+                      <SelectItem value="accident" className="text-white">Accident</SelectItem>
+                      <SelectItem value="other" className="text-white">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Sub-Category
                   </label>
-                  <select className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors">
-                    <option value="" className="bg-slate-800">Select sub-category</option>
-                    <option value="armed" className="bg-slate-800">Armed</option>
-                    <option value="unarmed" className="bg-slate-800">Unarmed</option>
-                    <option value="vehicle" className="bg-slate-800">Vehicle Related</option>
-                    <option value="property" className="bg-slate-800">Property</option>
-                  </select>
+                  <Select>
+                    <SelectTrigger className="bg-white/10 border-white/20 text-white text-sm py-3">
+                      <SelectValue placeholder="Select sub-category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-white/10">
+                      <SelectItem value="" className="text-white">Select sub-category</SelectItem>
+                      <SelectItem value="armed" className="text-white">Armed</SelectItem>
+                      <SelectItem value="unarmed" className="text-white">Unarmed</SelectItem>
+                      <SelectItem value="vehicle" className="text-white">Vehicle Related</SelectItem>
+                      <SelectItem value="property" className="text-white">Property</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -146,9 +159,9 @@ const NewOBEntry = () => {
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Location <span className="text-red-400">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors"
+                    className="bg-white/10 border-white/20 text-white placeholder-gray-400 text-sm py-3"
                     placeholder="Specific location of incident"
                     required
                   />
@@ -157,21 +170,26 @@ const NewOBEntry = () => {
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Sub-County
                   </label>
-                  <select className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors">
-                    <option value="" className="bg-slate-800">Select sub-county</option>
-                    <option value="westlands" className="bg-slate-800">Westlands</option>
-                    <option value="dagoretti" className="bg-slate-800">Dagoretti</option>
-                    <option value="langata" className="bg-slate-800">Lang&apos;ata</option>
-                    <option value="kibra" className="bg-slate-800">Kibra</option>
-                    <option value="roysambu" className="bg-slate-800">Roysambu</option>
-                    <option value="kasarani" className="bg-slate-800">Kasarani</option>
-                  </select>
+                  <Select>
+                    <SelectTrigger className="bg-white/10 border-white/20 text-white text-sm py-3">
+                      <SelectValue placeholder="Select sub-county" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-white/10">
+                      <SelectItem value="" className="text-white">Select sub-county</SelectItem>
+                      <SelectItem value="westlands" className="text-white">Westlands</SelectItem>
+                      <SelectItem value="dagoretti" className="text-white">Dagoretti</SelectItem>
+                      <SelectItem value="langata" className="text-white">Lang&apos;ata</SelectItem>
+                      <SelectItem value="kibra" className="text-white">Kibra</SelectItem>
+                      <SelectItem value="roysambu" className="text-white">Roysambu</SelectItem>
+                      <SelectItem value="kasarani" className="text-white">Kasarani</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Incident Date & Time
                   </label>
-                  <input
+                  <Input
                     type="datetime-local"
                     className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors"
                   />
@@ -180,8 +198,8 @@ const NewOBEntry = () => {
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Description <span className="text-red-400">*</span>
                   </label>
-                  <textarea
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors resize-y min-h-[100px]"
+                  <Textarea
+                    className="bg-white/10 border-white/20 text-white placeholder-gray-400 text-sm py-3 resize-y min-h-[100px]"
                     placeholder="Detailed description of the incident..."
                     required
                   />
@@ -200,9 +218,9 @@ const NewOBEntry = () => {
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Reporter Name
                   </label>
-                  <input
+                  <Input
                     type="text"
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors"
+                    className="bg-white/10 border-white/20 text-white placeholder-gray-400 text-sm py-3"
                     placeholder="Name of person reporting"
                   />
                 </div>
@@ -210,9 +228,9 @@ const NewOBEntry = () => {
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Reporter ID/Passport
                   </label>
-                  <input
+                  <Input
                     type="text"
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors"
+                    className="bg-white/10 border-white/20 text-white placeholder-gray-400 text-sm py-3"
                     placeholder="ID or passport number"
                   />
                 </div>
@@ -220,9 +238,9 @@ const NewOBEntry = () => {
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Reporter Phone
                   </label>
-                  <input
+                  <Input
                     type="tel"
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors"
+                    className="bg-white/10 border-white/20 text-white placeholder-gray-400 text-sm py-3"
                     placeholder="+254 700 000 000"
                   />
                 </div>
@@ -230,9 +248,9 @@ const NewOBEntry = () => {
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Reporter Address
                   </label>
-                  <input
+                  <Input
                     type="text"
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors"
+                    className="bg-white/10 border-white/20 text-white placeholder-gray-400 text-sm py-3"
                     placeholder="Physical address"
                   />
                 </div>
@@ -240,8 +258,8 @@ const NewOBEntry = () => {
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Suspect Information
                   </label>
-                  <textarea
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors resize-y min-h-[80px]"
+                  <Textarea
+                    className="bg-white/10 border-white/20 text-white placeholder-gray-400 text-sm py-3 resize-y min-h-[80px]"
                     placeholder="Details about suspect(s) if known..."
                   />
                 </div>
@@ -249,8 +267,8 @@ const NewOBEntry = () => {
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Witness Information
                   </label>
-                  <textarea
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors resize-y min-h-[80px]"
+                  <Textarea
+                    className="bg-white/10 border-white/20 text-white placeholder-gray-400 text-sm py-3 resize-y min-h-[80px]"
                     placeholder="Details about witness(es) if any..."
                   />
                 </div>
@@ -289,8 +307,8 @@ const NewOBEntry = () => {
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Additional Notes
                   </label>
-                  <textarea
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors resize-y min-h-[100px]"
+                  <Textarea
+                    className="bg-white/10 border-white/20 text-white placeholder-gray-400 text-sm py-3 resize-y min-h-[100px]"
                     placeholder="Any additional information or notes..."
                   />
                 </div>
@@ -308,29 +326,39 @@ const NewOBEntry = () => {
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Assign To
                   </label>
-                  <select className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors">
-                    <option value="" className="bg-slate-800">Select officer</option>
-                    <option value="officer1" className="bg-slate-800">PC Mary Wanjiku</option>
-                    <option value="officer2" className="bg-slate-800">Cpl James Ochieng</option>
-                    <option value="officer3" className="bg-slate-800">PC Grace Muthoni</option>
-                    <option value="officer4" className="bg-slate-800">Sgt John Kamau</option>
-                  </select>
+                  <Select>
+                    <SelectTrigger className="bg-white/10 border-white/20 text-white text-sm py-3">
+                      <SelectValue placeholder="Select officer" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-white/10">
+                      <SelectItem value="" className="text-white">Select officer</SelectItem>
+                      <SelectItem value="officer1" className="text-white">PC Mary Wanjiku</SelectItem>
+                      <SelectItem value="officer2" className="text-white">Cpl James Ochieng</SelectItem>
+                      <SelectItem value="officer3" className="text-white">PC Grace Muthoni</SelectItem>
+                      <SelectItem value="officer4" className="text-white">Sgt John Kamau</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Follow-up Required
                   </label>
-                  <select className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors">
-                    <option value="yes" className="bg-slate-800">Yes</option>
-                    <option value="no" className="bg-slate-800">No</option>
-                  </select>
+                  <Select defaultValue="yes">
+                    <SelectTrigger className="bg-white/10 border-white/20 text-white text-sm py-3">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-white/10">
+                      <SelectItem value="yes" className="text-white">Yes</SelectItem>
+                      <SelectItem value="no" className="text-white">No</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-blue-200 mb-2">
                     Immediate Action Taken
                   </label>
-                  <textarea
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-colors resize-y min-h-[80px]"
+                  <Textarea
+                    className="bg-white/10 border-white/20 text-white placeholder-gray-400 text-sm py-3 resize-y min-h-[80px]"
                     placeholder="Describe any immediate actions taken..."
                   />
                 </div>

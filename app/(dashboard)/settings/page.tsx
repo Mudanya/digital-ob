@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import DashboardLayout from '@/components/layout/dashboard-layout';
 import { Settings as SettingsIcon, User, Bell, Shield, Database, AlertCircle, Save } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -20,7 +21,7 @@ export default function SettingsPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 max-w-6xl mx-auto">
+      <div className="p-6 ">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-white">System Settings</h1>
@@ -99,20 +100,20 @@ export default function SettingsPage() {
                         <label className="block text-sm font-medium text-gray-300 mb-2">
                           First Name
                         </label>
-                        <input
+                        <Input
                           type="text"
                           defaultValue={user?.firstName}
-                          className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full bg-white/5 border-white/10 text-white"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">
                           Last Name
                         </label>
-                        <input
+                        <Input
                           type="text"
                           defaultValue={user?.lastName}
-                          className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full bg-white/5 border-white/10 text-white"
                         />
                       </div>
                     </div>
@@ -121,10 +122,10 @@ export default function SettingsPage() {
                       <label className="block text-sm font-medium text-gray-300 mb-2">
                         Email Address
                       </label>
-                      <input
+                      <Input
                         type="email"
                         defaultValue={user?.email}
-                        className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-white/5 border-white/10 text-white"
                       />
                     </div>
 
@@ -132,10 +133,10 @@ export default function SettingsPage() {
                       <label className="block text-sm font-medium text-gray-300 mb-2">
                         Phone Number
                       </label>
-                      <input
+                      <Input
                         type="tel"
                         defaultValue={user?.phoneNumber}
-                        className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-white/5 border-white/10 text-white"
                       />
                     </div>
 
@@ -144,22 +145,22 @@ export default function SettingsPage() {
                         <label className="block text-sm font-medium text-gray-300 mb-2">
                           Service Number
                         </label>
-                        <input
+                        <Input
                           type="text"
                           defaultValue={user?.serviceNumber}
                           disabled
-                          className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-gray-500 cursor-not-allowed"
+                          className="bg-white/5 border-white/10 text-gray-500"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">
                           Rank
                         </label>
-                        <input
+                        <Input
                           type="text"
                           defaultValue={user?.rank}
                           disabled
-                          className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-gray-500 cursor-not-allowed"
+                          className="bg-white/5 border-white/10 text-gray-500"
                         />
                       </div>
                     </div>
@@ -238,27 +239,27 @@ export default function SettingsPage() {
                       <label className="block text-sm font-medium text-gray-300 mb-2">
                         Current Password
                       </label>
-                      <input
+                      <Input
                         type="password"
-                        className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-white/5 border-white/10 text-white"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
                         New Password
                       </label>
-                      <input
+                      <Input
                         type="password"
-                        className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-white/5 border-white/10 text-white"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
                         Confirm New Password
                       </label>
-                      <input
+                      <Input
                         type="password"
-                        className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-white/5 border-white/10 text-white"
                       />
                     </div>
                   </div>
