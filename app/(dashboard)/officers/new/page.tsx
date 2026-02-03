@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import { useState, FormEvent, useEffect } from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/layout/dashboard-layout';
-import { Save, X, User, Shield, MapPin, AlertCircle } from 'lucide-react';
-import Link from 'next/link';
+import { useState, FormEvent, useEffect } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
+import DashboardLayout from "@/components/layout/dashboard-layout";
+import { Save, X, User, Shield, MapPin, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Station {
   id: string;
@@ -23,21 +31,21 @@ export default function NewOfficerPage() {
   const { token } = useAuth();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [stations, setStations] = useState<Station[]>([]);
   const [counties, setCounties] = useState<County[]>([]);
 
   const [formData, setFormData] = useState({
-    serviceNumber: '',
-    email: '',
-    password: '',
-    firstName: '',
-    lastName: '',
-    phoneNumber: '',
-    role: 'CONSTABLE',
-    rank: 'Constable',
-    stationId: '',
-    countyId: '',
+    serviceNumber: "",
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    role: "CONSTABLE",
+    rank: "Constable",
+    stationId: "",
+    countyId: "",
   });
 
   useEffect(() => {
@@ -48,7 +56,7 @@ export default function NewOfficerPage() {
   const fetchStations = async () => {
     if (!token) return;
     try {
-      const response = await fetch('/api/stations', {
+      const response = await fetch("/api/stations", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
@@ -56,14 +64,14 @@ export default function NewOfficerPage() {
         setStations(data.stations || []);
       }
     } catch (error) {
-      console.error('Failed to fetch stations:', error);
+      console.error("Failed to fetch stations:", error);
     }
   };
 
   const fetchCounties = async () => {
     if (!token) return;
     try {
-      const response = await fetch('/api/counties', {
+      const response = await fetch("/api/counties", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
@@ -71,20 +79,20 @@ export default function NewOfficerPage() {
         setCounties(data.counties || []);
       }
     } catch (error) {
-      console.error('Failed to fetch counties:', error);
+      console.error("Failed to fetch counties:", error);
     }
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/officers', {
-        method: 'POST',
+      const response = await fetch("/api/officers", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -95,19 +103,19 @@ export default function NewOfficerPage() {
       });
 
       if (response.ok) {
-        router.push('/officers');
+        router.push("/officers");
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to create officer');
+        setError(errorData.error || "Failed to create officer");
       }
     } catch (error) {
-      setError('An unexpected error occurred');
+      setError("An unexpected error occurred");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -116,7 +124,7 @@ export default function NewOfficerPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-6">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-white">Add New Officer</h1>
@@ -139,19 +147,19 @@ export default function NewOfficerPage() {
               <User className="h-5 w-5 text-blue-400" />
               Personal Information
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   First Name <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
 
@@ -159,13 +167,13 @@ export default function NewOfficerPage() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Last Name <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
 
@@ -173,14 +181,14 @@ export default function NewOfficerPage() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Phone Number <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   type="tel"
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
                   required
                   placeholder="+254 712 345678"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
 
@@ -188,14 +196,14 @@ export default function NewOfficerPage() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Email <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
                   placeholder="officer@police.go.ke"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
             </div>
@@ -207,20 +215,20 @@ export default function NewOfficerPage() {
               <Shield className="h-5 w-5 text-green-400" />
               Service Details
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Service Number <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="serviceNumber"
                   value={formData.serviceNumber}
                   onChange={handleChange}
                   required
                   placeholder="PC-12345"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
 
@@ -228,14 +236,14 @@ export default function NewOfficerPage() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Password <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   required
                   placeholder="Min 8 characters"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
 
@@ -243,38 +251,68 @@ export default function NewOfficerPage() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Role <span className="text-red-400">*</span>
                 </label>
-                <select
-                  name="role"
+                <Select
                   value={formData.role}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, role: value })
+                  }
                 >
-                  <option value="INSPECTOR_GENERAL">Inspector General</option>
-                  <option value="DEPUTY_INSPECTOR_GENERAL">Deputy Inspector General</option>
-                  <option value="COUNTY_COMMANDER">County Commander</option>
-                  <option value="OCPD">OCPD</option>
-                  <option value="OCS">OCS</option>
-                  <option value="OCP">OCP</option>
-                  <option value="INSPECTOR">Inspector</option>
-                  <option value="SERGEANT">Sergeant</option>
-                  <option value="CORPORAL">Corporal</option>
-                  <option value="CONSTABLE">Constable</option>
-                </select>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-white/10">
+                    <SelectItem
+                      value="INSPECTOR_GENERAL"
+                      className="text-white"
+                    >
+                      Inspector General
+                    </SelectItem>
+                    <SelectItem
+                      value="DEPUTY_INSPECTOR_GENERAL"
+                      className="text-white"
+                    >
+                      Deputy Inspector General
+                    </SelectItem>
+                    <SelectItem value="COUNTY_COMMANDER" className="text-white">
+                      County Commander
+                    </SelectItem>
+                    <SelectItem value="OCPD" className="text-white">
+                      OCPD
+                    </SelectItem>
+                    <SelectItem value="OCS" className="text-white">
+                      OCS
+                    </SelectItem>
+                    <SelectItem value="OCP" className="text-white">
+                      OCP
+                    </SelectItem>
+                    <SelectItem value="INSPECTOR" className="text-white">
+                      Inspector
+                    </SelectItem>
+                    <SelectItem value="SERGEANT" className="text-white">
+                      Sergeant
+                    </SelectItem>
+                    <SelectItem value="CORPORAL" className="text-white">
+                      Corporal
+                    </SelectItem>
+                    <SelectItem value="CONSTABLE" className="text-white">
+                      Constable
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Rank <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="rank"
                   value={formData.rank}
                   onChange={handleChange}
                   required
                   placeholder="e.g., Constable, Sergeant"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
             </div>
@@ -286,44 +324,66 @@ export default function NewOfficerPage() {
               <MapPin className="h-5 w-5 text-purple-400" />
               Assignment
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Station (Optional)
                 </label>
-                <select
-                  name="stationId"
+                <Select
                   value={formData.stationId}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, stationId: value })
+                  }
                 >
-                  <option value="">No Station Assignment</option>
-                  {stations.map((station) => (
-                    <option key={station.id} value={station.id}>
-                      {station.name} ({station.code})
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
+                    <SelectValue placeholder="No Station Assignment" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-white/10">
+                    <SelectItem value="-" className="text-white">
+                      No Station Assignment
+                    </SelectItem>
+                    {stations.map((station) => (
+                      <SelectItem
+                        key={station.id}
+                        value={station.id}
+                        className="text-white"
+                      >
+                        {station.name} ({station.code})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   County (Optional)
                 </label>
-                <select
-                  name="countyId"
+                <Select
                   value={formData.countyId}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, countyId: value })
+                  }
                 >
-                  <option value="">No County Assignment</option>
-                  {counties.map((county) => (
-                    <option key={county.id} value={county.id}>
-                      {county.name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
+                    <SelectValue placeholder="No County Assignment" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-white/10">
+                    <SelectItem value="-" className="text-white">
+                      No County Assignment
+                    </SelectItem>
+                    {counties.map((county) => (
+                      <SelectItem
+                        key={county.id}
+                        value={county.id}
+                        className="text-white"
+                      >
+                        {county.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>

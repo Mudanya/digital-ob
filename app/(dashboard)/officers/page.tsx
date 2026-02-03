@@ -1,13 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import DashboardLayout from '@/components/layout/dashboard-layout';
-import Link from 'next/link';
-import { Plus, Search, Users, Shield, UserCheck, UserX } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import DashboardLayout from "@/components/layout/dashboard-layout";
+import Link from "next/link";
+import { Plus, Search, Users, Shield, UserCheck, UserX } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Officer {
   id: string;
@@ -38,11 +44,16 @@ export default function OfficersPage() {
   const { token, user } = useAuth();
   const [officers, setOfficers] = useState<Officer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
-  const canCreateOfficer = ['INSPECTOR_GENERAL', 'DEPUTY_INSPECTOR_GENERAL', 'OCS', 'COUNTY_COMMANDER'].includes(user?.role || '');
+  const canCreateOfficer = [
+    "INSPECTOR_GENERAL",
+    "DEPUTY_INSPECTOR_GENERAL",
+    "OCS",
+    "COUNTY_COMMANDER",
+  ].includes(user?.role || "");
 
   useEffect(() => {
     fetchOfficers();
@@ -50,45 +61,49 @@ export default function OfficersPage() {
 
   const fetchOfficers = async () => {
     if (!token) return;
-    
+
     try {
       const params = new URLSearchParams();
-      if (roleFilter) params.append('role', roleFilter);
-      if (statusFilter) params.append('isActive', statusFilter);
-      
+      if (roleFilter) params.append("role", roleFilter);
+      if (statusFilter) params.append("isActive", statusFilter);
+
       const response = await fetch(`/api/officers?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setOfficers(data.officers || []);
       }
     } catch (error) {
-      console.error('Failed to fetch officers:', error);
+      console.error("Failed to fetch officers:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const filteredOfficers = officers.filter(officer =>
-    officer.serviceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    officer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    officer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    officer.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredOfficers = officers.filter(
+    (officer) =>
+      officer.serviceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      officer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      officer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      officer.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const getRoleBadgeColor = (role: string) => {
-    if (role.includes('INSPECTOR_GENERAL')) return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
-    if (role.includes('COMMANDER')) return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-    if (role.includes('OCS') || role.includes('OCPD')) return 'bg-green-500/20 text-green-400 border-green-500/30';
-    return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+    if (role.includes("INSPECTOR_GENERAL"))
+      return "bg-purple-500/20 text-purple-400 border-purple-500/30";
+    if (role.includes("COMMANDER"))
+      return "bg-blue-500/20 text-blue-400 border-blue-500/30";
+    if (role.includes("OCS") || role.includes("OCPD"))
+      return "bg-green-500/20 text-green-400 border-green-500/30";
+    return "bg-gray-500/20 text-gray-400 border-gray-500/30";
   };
 
   const stats = {
     total: officers.length,
-    active: officers.filter(o => o.isActive).length,
-    inactive: officers.filter(o => !o.isActive).length,
+    active: officers.filter((o) => o.isActive).length,
+    inactive: officers.filter((o) => !o.isActive).length,
   };
 
   return (
@@ -97,8 +112,12 @@ export default function OfficersPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-white">Officers Management</h1>
-            <p className="text-gray-400 mt-1">Manage police officers and personnel</p>
+            <h1 className="text-3xl font-bold text-white">
+              Officers Management
+            </h1>
+            <p className="text-gray-400 mt-1">
+              Manage police officers and personnel
+            </p>
           </div>
           {canCreateOfficer && (
             <Link
@@ -137,7 +156,9 @@ export default function OfficersPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-red-400 text-sm mb-1">Inactive</p>
-                <p className="text-2xl font-bold text-white">{stats.inactive}</p>
+                <p className="text-2xl font-bold text-white">
+                  {stats.inactive}
+                </p>
               </div>
               <UserX className="h-8 w-8 text-red-400 opacity-50" />
             </div>
@@ -159,31 +180,60 @@ export default function OfficersPage() {
             </div>
 
             <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="bg-white/5 border-white/10 text-white">
+              <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
                 <SelectValue placeholder="All Ranks" />
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-white/10">
-                <SelectItem value="" className="text-white">All Ranks</SelectItem>
-                <SelectItem value="INSPECTOR_GENERAL" className="text-white">Inspector General</SelectItem>
-                <SelectItem value="DEPUTY_INSPECTOR_GENERAL" className="text-white">Deputy IG</SelectItem>
-                <SelectItem value="COUNTY_COMMANDER" className="text-white">County Commander</SelectItem>
-                <SelectItem value="OCPD" className="text-white">OCPD</SelectItem>
-                <SelectItem value="OCS" className="text-white">OCS</SelectItem>
-                <SelectItem value="INSPECTOR" className="text-white">Inspector</SelectItem>
-                <SelectItem value="SERGEANT" className="text-white">Sergeant</SelectItem>
-                <SelectItem value="CORPORAL" className="text-white">Corporal</SelectItem>
-                <SelectItem value="CONSTABLE" className="text-white">Constable</SelectItem>
+                <SelectItem value="all" className="text-white">
+                  All Ranks
+                </SelectItem>
+                <SelectItem value="INSPECTOR_GENERAL" className="text-white">
+                  Inspector General
+                </SelectItem>
+                <SelectItem
+                  value="DEPUTY_INSPECTOR_GENERAL"
+                  className="text-white"
+                >
+                  Deputy IG
+                </SelectItem>
+                <SelectItem value="COUNTY_COMMANDER" className="text-white">
+                  County Commander
+                </SelectItem>
+                <SelectItem value="OCPD" className="text-white">
+                  OCPD
+                </SelectItem>
+                <SelectItem value="OCS" className="text-white">
+                  OCS
+                </SelectItem>
+                <SelectItem value="INSPECTOR" className="text-white">
+                  Inspector
+                </SelectItem>
+                <SelectItem value="SERGEANT" className="text-white">
+                  Sergeant
+                </SelectItem>
+                <SelectItem value="CORPORAL" className="text-white">
+                  Corporal
+                </SelectItem>
+                <SelectItem value="CONSTABLE" className="text-white">
+                  Constable
+                </SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="bg-white/5 border-white/10 text-white">
+              <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-white/10">
-                <SelectItem value="" className="text-white">All Status</SelectItem>
-                <SelectItem value="true" className="text-white">Active</SelectItem>
-                <SelectItem value="false" className="text-white">Inactive</SelectItem>
+                <SelectItem value="all" className="text-white">
+                  All Status
+                </SelectItem>
+                <SelectItem value="true" className="text-white">
+                  Active
+                </SelectItem>
+                <SelectItem value="false" className="text-white">
+                  Inactive
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -198,21 +248,26 @@ export default function OfficersPage() {
         ) : filteredOfficers.length === 0 ? (
           <div className="bg-white/10 rounded-xl border border-white/20 p-12 text-center">
             <Users className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">No Officers Found</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">
+              No Officers Found
+            </h3>
             <p className="text-gray-400 mb-6">
               {searchTerm || roleFilter || statusFilter
-                ? 'Try adjusting your filters'
-                : 'Add your first officer to get started'}
+                ? "Try adjusting your filters"
+                : "Add your first officer to get started"}
             </p>
-            {!searchTerm && !roleFilter && !statusFilter && canCreateOfficer && (
-              <Link
-                href="/officers/new"
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors"
-              >
-                <Plus className="h-5 w-5" />
-                Add First Officer
-              </Link>
-            )}
+            {!searchTerm &&
+              !roleFilter &&
+              !statusFilter &&
+              canCreateOfficer && (
+                <Link
+                  href="/officers/new"
+                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  <Plus className="h-5 w-5" />
+                  Add First Officer
+                </Link>
+              )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -223,26 +278,36 @@ export default function OfficersPage() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${officer.isActive ? 'bg-green-600' : 'bg-gray-600'}`}>
+                    <div
+                      className={`p-2 rounded-lg ${officer.isActive ? "bg-green-600" : "bg-gray-600"}`}
+                    >
                       <Shield className="h-5 w-5 text-white" />
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-white">
                         {officer.rank} {officer.firstName} {officer.lastName}
                       </h3>
-                      <p className="text-sm text-gray-400">{officer.serviceNumber}</p>
+                      <p className="text-sm text-gray-400">
+                        {officer.serviceNumber}
+                      </p>
                     </div>
                   </div>
-                  <Badge className={officer.isActive ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}>
-                    {officer.isActive ? 'Active' : 'Inactive'}
+                  <Badge
+                    className={
+                      officer.isActive
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-gray-500/20 text-gray-400"
+                    }
+                  >
+                    {officer.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </div>
 
                 <div className="space-y-2 mb-4">
                   <Badge className={getRoleBadgeColor(officer.role)}>
-                    {officer.role.replace(/_/g, ' ')}
+                    {officer.role.replace(/_/g, " ")}
                   </Badge>
-                  
+
                   <div className="text-sm text-gray-300">
                     <p>📧 {officer.email}</p>
                     <p>📱 {officer.phoneNumber}</p>
@@ -263,11 +328,15 @@ export default function OfficersPage() {
 
                 <div className="flex gap-4 pt-4 border-t border-white/10 text-xs">
                   <div className="text-center">
-                    <p className="text-lg font-bold text-white">{officer._count.casesReported}</p>
+                    <p className="text-lg font-bold text-white">
+                      {officer._count.casesReported}
+                    </p>
                     <p className="text-gray-400">Reported</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg font-bold text-white">{officer._count.casesAssigned}</p>
+                    <p className="text-lg font-bold text-white">
+                      {officer._count.casesAssigned}
+                    </p>
                     <p className="text-gray-400">Assigned</p>
                   </div>
                   {officer.lastLogin && (

@@ -217,13 +217,15 @@ export default function CasesPage() {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
+                    <div className="flex flex-col md:flex-row items-center gap-3 mb-3">
+                      <div className="flex items-center gap-3">
                       <h3 className="text-xl font-semibold text-white">
                         {caseItem.obNumber}
                       </h3>
                       <Badge className={getPriorityColor(caseItem.priority)}>
                         {caseItem.priority}
                       </Badge>
+                      </div>
                       <Badge className={getStatusColor(caseItem.status)}>
                         {caseItem.status.replace(/_/g, ' ')}
                       </Badge>

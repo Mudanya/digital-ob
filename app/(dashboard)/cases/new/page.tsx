@@ -1,45 +1,58 @@
-'use client';
+"use client";
 
-import { useState, FormEvent } from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/layout/dashboard-layout';
-import { Save, X, MapPin, Calendar, AlertCircle } from 'lucide-react';
-import Link from 'next/link';
+import { useState, FormEvent } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
+import DashboardLayout from "@/components/layout/dashboard-layout";
+import { Save, X, MapPin, Calendar, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function NewCasePage() {
   const { token, user } = useAuth();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: 'OTHER',
-    priority: 'MEDIUM',
-    location: '',
-    latitude: '',
-    longitude: '',
+    title: "",
+    description: "",
+    category: "OTHER",
+    priority: "MEDIUM",
+    location: "",
+    latitude: "",
+    longitude: "",
     incidentDate: new Date().toISOString().slice(0, 16),
   });
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/cases', {
-        method: 'POST',
+      const response = await fetch("/api/cases", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           ...formData,
-          latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
-          longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
+          latitude: formData.latitude
+            ? parseFloat(formData.latitude)
+            : undefined,
+          longitude: formData.longitude
+            ? parseFloat(formData.longitude)
+            : undefined,
         }),
       });
 
@@ -48,16 +61,18 @@ export default function NewCasePage() {
         router.push(`/cases/${data.id}`);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to create case');
+        setError(errorData.error || "Failed to create case");
       }
     } catch (error) {
-      setError('An unexpected error occurred');
+      setError("An unexpected error occurred");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -66,11 +81,13 @@ export default function NewCasePage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-6">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-white">New OB Entry</h1>
-          <p className="text-gray-400 mt-1">Create a new occurrence book entry</p>
+          <p className="text-gray-400 mt-1">
+            Create a new occurrence book entry
+          </p>
         </div>
 
         {/* Form */}
@@ -85,22 +102,24 @@ export default function NewCasePage() {
 
           {/* Case Information */}
           <div className="bg-white/10 rounded-xl border border-white/20 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Case Information</h3>
-            
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Case Information
+            </h3>
+
             <div className="space-y-4">
               {/* Title */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Case Title <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
                   required
                   placeholder="Brief description of the incident"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
 
@@ -109,14 +128,14 @@ export default function NewCasePage() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Full Description <span className="text-red-400">*</span>
                 </label>
-                <textarea
+                <Textarea
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
                   required
                   rows={5}
                   placeholder="Detailed description of the incident, including what happened, when, where, and any other relevant details..."
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500 resize-none"
                 />
               </div>
 
@@ -126,42 +145,78 @@ export default function NewCasePage() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Category <span className="text-red-400">*</span>
                   </label>
-                  <select
-                    name="category"
+                  <Select
                     value={formData.category}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, category: value })
+                    }
                   >
-                    <option value="THEFT">Theft</option>
-                    <option value="ASSAULT">Assault</option>
-                    <option value="ROBBERY">Robbery</option>
-                    <option value="MURDER">Murder</option>
-                    <option value="TRAFFIC">Traffic Accident</option>
-                    <option value="DOMESTIC">Domestic Violence</option>
-                    <option value="FRAUD">Fraud</option>
-                    <option value="CYBERCRIME">Cybercrime</option>
-                    <option value="NARCOTICS">Narcotics</option>
-                    <option value="OTHER">Other</option>
-                  </select>
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-white/10">
+                      <SelectItem value="THEFT" className="text-white">
+                        Theft
+                      </SelectItem>
+                      <SelectItem value="ASSAULT" className="text-white">
+                        Assault
+                      </SelectItem>
+                      <SelectItem value="ROBBERY" className="text-white">
+                        Robbery
+                      </SelectItem>
+                      <SelectItem value="MURDER" className="text-white">
+                        Murder
+                      </SelectItem>
+                      <SelectItem value="TRAFFIC" className="text-white">
+                        Traffic Accident
+                      </SelectItem>
+                      <SelectItem value="DOMESTIC" className="text-white">
+                        Domestic Violence
+                      </SelectItem>
+                      <SelectItem value="FRAUD" className="text-white">
+                        Fraud
+                      </SelectItem>
+                      <SelectItem value="CYBERCRIME" className="text-white">
+                        Cybercrime
+                      </SelectItem>
+                      <SelectItem value="NARCOTICS" className="text-white">
+                        Narcotics
+                      </SelectItem>
+                      <SelectItem value="OTHER" className="text-white">
+                        Other
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Priority <span className="text-red-400">*</span>
                   </label>
-                  <select
-                    name="priority"
+                  <Select
                     value={formData.priority}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, priority: value })
+                    }
                   >
-                    <option value="LOW">Low Priority</option>
-                    <option value="MEDIUM">Medium Priority</option>
-                    <option value="HIGH">High Priority</option>
-                    <option value="URGENT">Urgent</option>
-                  </select>
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-white/10">
+                      <SelectItem value="LOW" className="text-white">
+                        Low Priority
+                      </SelectItem>
+                      <SelectItem value="MEDIUM" className="text-white">
+                        Medium Priority
+                      </SelectItem>
+                      <SelectItem value="HIGH" className="text-white">
+                        High Priority
+                      </SelectItem>
+                      <SelectItem value="URGENT" className="text-white">
+                        Urgent
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -173,21 +228,21 @@ export default function NewCasePage() {
               <MapPin className="h-5 w-5 text-blue-400" />
               Location & Time
             </h3>
-            
+
             <div className="space-y-4">
               {/* Location */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Location <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
                   required
                   placeholder="e.g., Westlands, Nairobi or specific address"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                 />
               </div>
 
@@ -197,13 +252,13 @@ export default function NewCasePage() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Latitude (Optional)
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="latitude"
                     value={formData.latitude}
                     onChange={handleChange}
                     placeholder="e.g., -1.2921"
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                   />
                 </div>
 
@@ -211,13 +266,13 @@ export default function NewCasePage() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Longitude (Optional)
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="longitude"
                     value={formData.longitude}
                     onChange={handleChange}
                     placeholder="e.g., 36.8219"
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                   />
                 </div>
               </div>
@@ -227,13 +282,13 @@ export default function NewCasePage() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Incident Date and Time <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   type="datetime-local"
                   name="incidentDate"
                   value={formData.incidentDate}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white/5 border-white/10 text-white"
                 />
               </div>
             </div>
@@ -243,7 +298,8 @@ export default function NewCasePage() {
           {user?.station && (
             <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
               <p className="text-blue-300 text-sm">
-                This case will be registered at: <strong>{user.station.name}</strong>
+                This case will be registered at:{" "}
+                <strong>{user.station.name}</strong>
               </p>
               <p className="text-blue-400 text-xs mt-1">
                 An OB number will be automatically generated upon submission

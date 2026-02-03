@@ -1,11 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import { useParams, useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/layout/dashboard-layout';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { useParams, useRouter } from "next/navigation";
+import DashboardLayout from "@/components/layout/dashboard-layout";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ArrowLeft,
   MapPin,
@@ -18,8 +24,8 @@ import {
   Users,
   Package,
   Scale,
-} from 'lucide-react';
-import Link from 'next/link';
+} from "lucide-react";
+import Link from "next/link";
 
 export default function CaseDetailPage() {
   const { token } = useAuth();
@@ -29,7 +35,7 @@ export default function CaseDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
-  const [newStatus, setNewStatus] = useState('');
+  const [newStatus, setNewStatus] = useState("");
 
   useEffect(() => {
     if (params.id) {
@@ -42,7 +48,7 @@ export default function CaseDetailPage() {
 
     try {
       const response = await fetch(`/api/cases/${params.id}`, {
-        headers: { 'Authorization': `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.ok) {
@@ -50,10 +56,10 @@ export default function CaseDetailPage() {
         setCaseData(data);
         setNewStatus(data.status);
       } else {
-        router.push('/cases');
+        router.push("/cases");
       }
     } catch (error) {
-      console.error('Failed to fetch case:', error);
+      console.error("Failed to fetch case:", error);
     } finally {
       setIsLoading(false);
     }
@@ -61,14 +67,14 @@ export default function CaseDetailPage() {
 
   const handleUpdateStatus = async () => {
     if (!token || !newStatus) return;
-    
+
     setIsUpdatingStatus(true);
     try {
       const response = await fetch(`/api/cases/${params.id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status: newStatus }),
       });
@@ -78,7 +84,7 @@ export default function CaseDetailPage() {
         setShowStatusModal(false);
       }
     } catch (error) {
-      console.error('Failed to update status:', error);
+      console.error("Failed to update status:", error);
     } finally {
       setIsUpdatingStatus(false);
     }
@@ -106,21 +112,31 @@ export default function CaseDetailPage() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'URGENT': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      case 'HIGH': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-      case 'MEDIUM': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'LOW': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+      case "URGENT":
+        return "bg-red-500/20 text-red-400 border-red-500/30";
+      case "HIGH":
+        return "bg-orange-500/20 text-orange-400 border-orange-500/30";
+      case "MEDIUM":
+        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+      case "LOW":
+        return "bg-green-500/20 text-green-400 border-green-500/30";
+      default:
+        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'REPORTED': return 'bg-blue-500/20 text-blue-400';
-      case 'UNDER_INVESTIGATION': return 'bg-purple-500/20 text-purple-400';
-      case 'RESOLVED': return 'bg-green-500/20 text-green-400';
-      case 'CLOSED': return 'bg-gray-500/20 text-gray-400';
-      default: return 'bg-gray-500/20 text-gray-400';
+      case "REPORTED":
+        return "bg-blue-500/20 text-blue-400";
+      case "UNDER_INVESTIGATION":
+        return "bg-purple-500/20 text-purple-400";
+      case "RESOLVED":
+        return "bg-green-500/20 text-green-400";
+      case "CLOSED":
+        return "bg-gray-500/20 text-gray-400";
+      default:
+        return "bg-gray-500/20 text-gray-400";
     }
   };
 
@@ -140,19 +156,21 @@ export default function CaseDetailPage() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold text-white">{caseData.obNumber}</h1>
+                <h1 className="text-3xl font-bold text-white">
+                  {caseData.obNumber}
+                </h1>
                 <Badge className={getPriorityColor(caseData.priority)}>
                   {caseData.priority}
                 </Badge>
                 <Badge className={getStatusColor(caseData.status)}>
-                  {caseData.status.replace(/_/g, ' ')}
+                  {caseData.status.replace(/_/g, " ")}
                 </Badge>
               </div>
               <p className="text-xl text-gray-300">{caseData.title}</p>
             </div>
 
             <div className="flex gap-2">
-              <button 
+              <button
                 onClick={() => setShowStatusModal(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
               >
@@ -169,8 +187,12 @@ export default function CaseDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Description */}
             <div className="bg-white/10 rounded-xl border border-white/20 p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Case Description</h3>
-              <p className="text-gray-300 whitespace-pre-wrap">{caseData.description}</p>
+              <h3 className="text-lg font-semibold text-white mb-4">
+                Case Description
+              </h3>
+              <p className="text-gray-300 whitespace-pre-wrap">
+                {caseData.description}
+              </p>
             </div>
 
             {/* Location */}
@@ -203,10 +225,14 @@ export default function CaseDetailPage() {
                         {suspect.firstName} {suspect.lastName}
                       </p>
                       {suspect.idNumber && (
-                        <p className="text-sm text-gray-400">ID: {suspect.idNumber}</p>
+                        <p className="text-sm text-gray-400">
+                          ID: {suspect.idNumber}
+                        </p>
                       )}
                       {suspect.isCustody && (
-                        <Badge className="mt-2 bg-red-500/20 text-red-400">In Custody</Badge>
+                        <Badge className="mt-2 bg-red-500/20 text-red-400">
+                          In Custody
+                        </Badge>
                       )}
                     </div>
                   ))}
@@ -223,11 +249,19 @@ export default function CaseDetailPage() {
                 </h3>
                 <div className="space-y-3">
                   {caseData.evidence.map((evidence: any) => (
-                    <div key={evidence.id} className="p-4 bg-white/5 rounded-lg">
-                      <p className="font-semibold text-white">{evidence.type}</p>
-                      <p className="text-sm text-gray-400 mt-1">{evidence.description}</p>
+                    <div
+                      key={evidence.id}
+                      className="p-4 bg-white/5 rounded-lg"
+                    >
+                      <p className="font-semibold text-white">
+                        {evidence.type}
+                      </p>
+                      <p className="text-sm text-gray-400 mt-1">
+                        {evidence.description}
+                      </p>
                       <p className="text-xs text-gray-500 mt-2">
-                        Collected: {new Date(evidence.collectedAt).toLocaleString()}
+                        Collected:{" "}
+                        {new Date(evidence.collectedAt).toLocaleString()}
                       </p>
                     </div>
                   ))}
@@ -240,11 +274,15 @@ export default function CaseDetailPage() {
           <div className="space-y-6">
             {/* Case Information */}
             <div className="bg-white/10 rounded-xl border border-white/20 p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Case Information</h3>
+              <h3 className="text-lg font-semibold text-white mb-4">
+                Case Information
+              </h3>
               <div className="space-y-3">
                 <div>
                   <p className="text-sm text-gray-400">Category</p>
-                  <p className="text-white font-medium">{caseData.category.replace(/_/g, ' ')}</p>
+                  <p className="text-white font-medium">
+                    {caseData.category.replace(/_/g, " ")}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-400">Incident Date</p>
@@ -269,7 +307,8 @@ export default function CaseDetailPage() {
               </h3>
               <div>
                 <p className="text-white font-medium">
-                  {caseData.reportedBy.rank} {caseData.reportedBy.firstName} {caseData.reportedBy.lastName}
+                  {caseData.reportedBy.rank} {caseData.reportedBy.firstName}{" "}
+                  {caseData.reportedBy.lastName}
                 </p>
                 <p className="text-sm text-gray-400 mt-1">
                   Service No: {caseData.reportedBy.serviceNumber}
@@ -280,10 +319,13 @@ export default function CaseDetailPage() {
             {/* Assigned To */}
             {caseData.assignedTo && (
               <div className="bg-white/10 rounded-xl border border-white/20 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Assigned To</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Assigned To
+                </h3>
                 <div>
                   <p className="text-white font-medium">
-                    {caseData.assignedTo.rank} {caseData.assignedTo.firstName} {caseData.assignedTo.lastName}
+                    {caseData.assignedTo.rank} {caseData.assignedTo.firstName}{" "}
+                    {caseData.assignedTo.lastName}
                   </p>
                   <p className="text-sm text-gray-400 mt-1">
                     Service No: {caseData.assignedTo.serviceNumber}
@@ -296,8 +338,12 @@ export default function CaseDetailPage() {
             <div className="bg-white/10 rounded-xl border border-white/20 p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Station</h3>
               <div>
-                <p className="text-white font-medium">{caseData.station.name}</p>
-                <p className="text-sm text-gray-400 mt-1">Code: {caseData.station.code}</p>
+                <p className="text-white font-medium">
+                  {caseData.station.name}
+                </p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Code: {caseData.station.code}
+                </p>
               </div>
             </div>
 
@@ -311,8 +357,12 @@ export default function CaseDetailPage() {
                 <div className="space-y-2">
                   {caseData.courtFiles.map((file: any) => (
                     <div key={file.id} className="p-3 bg-white/5 rounded-lg">
-                      <p className="text-sm font-medium text-white">{file.courtName}</p>
-                      <p className="text-xs text-gray-400 mt-1">Case No: {file.caseNumber}</p>
+                      <p className="text-sm font-medium text-white">
+                        {file.courtName}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Case No: {file.caseNumber}
+                      </p>
                       <Badge className="mt-2 text-xs">{file.status}</Badge>
                     </div>
                   ))}
@@ -325,7 +375,9 @@ export default function CaseDetailPage() {
         {/* Case Updates Timeline */}
         {caseData.caseUpdates && caseData.caseUpdates.length > 0 && (
           <div className="bg-white/10 rounded-xl border border-white/20 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Case Timeline</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Case Timeline
+            </h3>
             <div className="space-y-4">
               {caseData.caseUpdates.map((update: any, index: number) => (
                 <div key={update.id} className="flex gap-4">
@@ -338,8 +390,12 @@ export default function CaseDetailPage() {
                     )}
                   </div>
                   <div className="flex-1 pb-4">
-                    <p className="text-white font-medium">{update.updateType}</p>
-                    <p className="text-gray-400 text-sm mt-1">{update.description}</p>
+                    <p className="text-white font-medium">
+                      {update.updateType}
+                    </p>
+                    <p className="text-gray-400 text-sm mt-1">
+                      {update.description}
+                    </p>
                     <p className="text-gray-500 text-xs mt-2">
                       {new Date(update.createdAt).toLocaleString()}
                     </p>
@@ -354,25 +410,52 @@ export default function CaseDetailPage() {
         {showStatusModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-gray-900 rounded-xl border border-white/20 p-6 max-w-md w-full">
-              <h3 className="text-xl font-bold text-white mb-4">Update Case Status</h3>
-              
+              <h3 className="text-xl font-bold text-white mb-4">
+                Update Case Status
+              </h3>
+
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   New Status
                 </label>
                 <Select value={newStatus} onValueChange={setNewStatus}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-white/10">
-                    <SelectItem value="REPORTED" className="text-white">Reported</SelectItem>
-                    <SelectItem value="UNDER_INVESTIGATION" className="text-white">Under Investigation</SelectItem>
-                    <SelectItem value="ASSIGNED_TO_DCI" className="text-white">Assigned to DCI</SelectItem>
-                    <SelectItem value="ASSIGNED_TO_PROSECUTION" className="text-white">Assigned to Prosecution</SelectItem>
-                    <SelectItem value="ASSIGNED_TO_ARBITRATION" className="text-white">Assigned to Arbitration</SelectItem>
-                    <SelectItem value="COURT_FILED" className="text-white">Court Filed</SelectItem>
-                    <SelectItem value="RESOLVED" className="text-white">Resolved</SelectItem>
-                    <SelectItem value="CLOSED" className="text-white">Closed</SelectItem>
+                    <SelectItem value="REPORTED" className="text-white">
+                      Reported
+                    </SelectItem>
+                    <SelectItem
+                      value="UNDER_INVESTIGATION"
+                      className="text-white"
+                    >
+                      Under Investigation
+                    </SelectItem>
+                    <SelectItem value="ASSIGNED_TO_DCI" className="text-white">
+                      Assigned to DCI
+                    </SelectItem>
+                    <SelectItem
+                      value="ASSIGNED_TO_PROSECUTION"
+                      className="text-white"
+                    >
+                      Assigned to Prosecution
+                    </SelectItem>
+                    <SelectItem
+                      value="ASSIGNED_TO_ARBITRATION"
+                      className="text-white"
+                    >
+                      Assigned to Arbitration
+                    </SelectItem>
+                    <SelectItem value="COURT_FILED" className="text-white">
+                      Court Filed
+                    </SelectItem>
+                    <SelectItem value="RESOLVED" className="text-white">
+                      Resolved
+                    </SelectItem>
+                    <SelectItem value="CLOSED" className="text-white">
+                      Closed
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -389,7 +472,7 @@ export default function CaseDetailPage() {
                   disabled={isUpdatingStatus}
                   className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isUpdatingStatus ? 'Updating...' : 'Update Status'}
+                  {isUpdatingStatus ? "Updating..." : "Update Status"}
                 </button>
               </div>
             </div>

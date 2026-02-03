@@ -1,9 +1,26 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import DashboardLayout from '@/components/layout/dashboard-layout';
-import { Building2, Plus, Search, MapPin, Phone, Users, FileText, X } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import DashboardLayout from "@/components/layout/dashboard-layout";
+import {
+  Building2,
+  Plus,
+  Search,
+  MapPin,
+  Phone,
+  Users,
+  FileText,
+  X,
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Station {
   id: string;
@@ -35,22 +52,24 @@ export default function StationsPage() {
   const [stations, setStations] = useState<Station[]>([]);
   const [counties, setCounties] = useState<County[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
-    name: '',
-    code: '',
-    countyId: '',
-    address: '',
-    phoneNumber: '',
-    latitude: '',
-    longitude: '',
+    name: "",
+    code: "",
+    countyId: "",
+    address: "",
+    phoneNumber: "",
+    latitude: "",
+    longitude: "",
   });
 
-  const canCreateStation = user?.role === 'INSPECTOR_GENERAL' || user?.role === 'DEPUTY_INSPECTOR_GENERAL';
+  const canCreateStation =
+    user?.role === "INSPECTOR_GENERAL" ||
+    user?.role === "DEPUTY_INSPECTOR_GENERAL";
 
   useEffect(() => {
     fetchStations();
@@ -59,18 +78,18 @@ export default function StationsPage() {
 
   const fetchStations = async () => {
     if (!token) return;
-    
+
     try {
-      const response = await fetch('/api/stations', {
+      const response = await fetch("/api/stations", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setStations(data.stations);
       }
     } catch (error) {
-      console.error('Failed to fetch stations:', error);
+      console.error("Failed to fetch stations:", error);
     } finally {
       setIsLoading(false);
     }
@@ -78,31 +97,31 @@ export default function StationsPage() {
 
   const fetchCounties = async () => {
     if (!token) return;
-    
+
     try {
-      const response = await fetch('/api/counties', {
+      const response = await fetch("/api/counties", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setCounties(data.counties);
       }
     } catch (error) {
-      console.error('Failed to fetch counties:', error);
+      console.error("Failed to fetch counties:", error);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/stations', {
-        method: 'POST',
+      const response = await fetch("/api/stations", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
@@ -111,30 +130,31 @@ export default function StationsPage() {
       if (response.ok) {
         setShowCreateModal(false);
         setFormData({
-          name: '',
-          code: '',
-          countyId: '',
-          address: '',
-          phoneNumber: '',
-          latitude: '',
-          longitude: '',
+          name: "",
+          code: "",
+          countyId: "",
+          address: "",
+          phoneNumber: "",
+          latitude: "",
+          longitude: "",
         });
         fetchStations();
       } else {
         const data = await response.json();
-        setError(data.error || 'Failed to create station');
+        setError(data.error || "Failed to create station");
       }
     } catch (error) {
-      setError('An unexpected error occurred');
+      setError("An unexpected error occurred");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const filteredStations = stations.filter(station =>
-    station.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    station.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    station.county.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStations = stations.filter(
+    (station) =>
+      station.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      station.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      station.county.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -143,7 +163,9 @@ export default function StationsPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-white">Police Stations</h1>
-            <p className="text-gray-400 mt-1">Manage police stations and posts</p>
+            <p className="text-gray-400 mt-1">
+              Manage police stations and posts
+            </p>
           </div>
           {canCreateStation && (
             <button
@@ -180,12 +202,12 @@ export default function StationsPage() {
         <div className="mb-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
+            <Input
               type="text"
               placeholder="Search stations..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400"
             />
           </div>
         </div>
@@ -199,9 +221,13 @@ export default function StationsPage() {
         ) : filteredStations.length === 0 ? (
           <div className="bg-white/10 rounded-xl border border-white/20 p-12 text-center">
             <Building2 className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">No Stations Found</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">
+              No Stations Found
+            </h3>
             <p className="text-gray-400">
-              {searchTerm ? 'Try adjusting your search' : 'Add your first station to get started'}
+              {searchTerm
+                ? "Try adjusting your search"
+                : "Add your first station to get started"}
             </p>
           </div>
         ) : (
@@ -217,7 +243,9 @@ export default function StationsPage() {
                       <Building2 className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white">{station.name}</h3>
+                      <h3 className="text-lg font-semibold text-white">
+                        {station.name}
+                      </h3>
                       <p className="text-sm text-gray-400">{station.code}</p>
                     </div>
                   </div>
@@ -242,11 +270,15 @@ export default function StationsPage() {
 
                 <div className="flex gap-4 pt-4 border-t border-white/10">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-white">{station._count.users}</p>
+                    <p className="text-2xl font-bold text-white">
+                      {station._count.users}
+                    </p>
                     <p className="text-xs text-gray-400">Officers</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-white">{station._count.cases}</p>
+                    <p className="text-2xl font-bold text-white">
+                      {station._count.cases}
+                    </p>
                     <p className="text-xs text-gray-400">Cases</p>
                   </div>
                 </div>
@@ -260,7 +292,9 @@ export default function StationsPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-slate-900 rounded-xl border border-white/20 p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white">Add New Station</h2>
+                <h2 className="text-2xl font-bold text-white">
+                  Add New Station
+                </h2>
                 <button
                   onClick={() => setShowCreateModal(false)}
                   className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -280,12 +314,14 @@ export default function StationsPage() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Station Name <span className="text-red-400">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     required
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    className="w-full bg-white/5 border-white/10 text-white"
                     placeholder="e.g., Central Police Station"
                   />
                 </div>
@@ -294,12 +330,17 @@ export default function StationsPage() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Station Code <span className="text-red-400">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     required
                     value={formData.code}
-                    onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        code: e.target.value.toUpperCase(),
+                      })
+                    }
+                    className="w-full bg-white/5 border-white/10 text-white"
                     placeholder="e.g., PS-001"
                   />
                 </div>
@@ -308,31 +349,44 @@ export default function StationsPage() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     County <span className="text-red-400">*</span>
                   </label>
-                  <select
-                    required
+                  <Select
                     value={formData.countyId}
-                    onChange={(e) => setFormData({ ...formData, countyId: e.target.value })}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, countyId: value })
+                    }
                   >
-                    <option value="">Select County</option>
-                    {counties.map((county) => (
-                      <option key={county.id} value={county.id}>
-                        {county.name}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
+                      <SelectValue placeholder="Select County" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-white/10">
+                      <SelectItem value="all" className="text-white">
+                        Select County
+                      </SelectItem>
+                      {counties.map((county) => (
+                        <SelectItem
+                          key={county.id}
+                          value={county.id}
+                          className="text-white"
+                        >
+                          {county.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Address <span className="text-red-400">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     required
                     value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) =>
+                      setFormData({ ...formData, address: e.target.value })
+                    }
+                    className="w-full bg-white/5 border-white/10 text-white"
                     placeholder="e.g., Along Kenyatta Avenue, Nairobi"
                   />
                 </div>
@@ -341,11 +395,13 @@ export default function StationsPage() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Phone Number
                   </label>
-                  <input
+                  <Input
                     type="tel"
                     value={formData.phoneNumber}
-                    onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) =>
+                      setFormData({ ...formData, phoneNumber: e.target.value })
+                    }
+                    className="w-full bg-white/5 border-white/10 text-white"
                     placeholder="e.g., +254 20 123456"
                   />
                 </div>
@@ -355,12 +411,14 @@ export default function StationsPage() {
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Latitude
                     </label>
-                    <input
+                    <Input
                       type="number"
                       step="any"
                       value={formData.latitude}
-                      onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                      className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      onChange={(e) =>
+                        setFormData({ ...formData, latitude: e.target.value })
+                      }
+                      className="w-full bg-white/5 border-white/10 text-white"
                       placeholder="e.g., -1.2921"
                     />
                   </div>
@@ -369,12 +427,14 @@ export default function StationsPage() {
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Longitude
                     </label>
-                    <input
+                    <Input
                       type="number"
                       step="any"
                       value={formData.longitude}
-                      onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                      className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      onChange={(e) =>
+                        setFormData({ ...formData, longitude: e.target.value })
+                      }
+                      className="w-full bg-white/5 border-white/10 text-white"
                       placeholder="e.g., 36.8219"
                     />
                   </div>
@@ -393,7 +453,7 @@ export default function StationsPage() {
                     disabled={isSubmitting}
                     className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition-colors disabled:opacity-50"
                   >
-                    {isSubmitting ? 'Creating...' : 'Create Station'}
+                    {isSubmitting ? "Creating..." : "Create Station"}
                   </button>
                 </div>
               </form>
