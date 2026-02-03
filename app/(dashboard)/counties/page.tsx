@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/auth-context';
 import DashboardLayout from '@/components/layout/dashboard-layout';
 import { MapPin, Building2, Users, FileText, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
+import { Input } from '@/components/ui/input';
 
 interface County {
   id: string;
@@ -112,12 +113,12 @@ export default function CountiesPage() {
 
         {/* Search */}
         <div className="mb-6">
-          <input
+          <Input
             type="text"
             placeholder="Search counties..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="bg-white/5 border-white/10 text-white placeholder-gray-400"
           />
         </div>
 

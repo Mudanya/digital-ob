@@ -108,7 +108,7 @@ export default function OCSDashboard() {
         {/* Recent Cases */}
         <div className="lg:col-span-2 bg-white/12 border border-white/20 rounded-xl overflow-hidden">
           <div className="flex justify-between items-center px-4 sm:px-6 py-4 border-b border-white/20">
-            <h3 className="text-base sm:text-lg font-semibold">Recent Cases</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-white">Recent Cases</h3>
             <Link
               href={'/cases'}
               className="text-sm sm:text-base text-blue-400 hover:text-blue-300 transition-colors"
@@ -134,7 +134,7 @@ export default function OCSDashboard() {
         {/* Quick Actions */}
         <div className="bg-white/12 rounded-xl border border-white/20 overflow-hidden">
           <div className="px-4 sm:px-6 py-4 border-b border-white/20">
-            <h3 className="text-base sm:text-lg font-semibold">Quick Actions</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-white">Quick Actions</h3>
           </div>
           <div className="p-4 sm:p-6 space-y-3">
             <Link
@@ -219,7 +219,7 @@ export default function OCSDashboard() {
       {/* Recent Activity */}
       <div className="bg-white/12 rounded-xl border border-white/20 w-full">
         <div className="px-4 sm:px-6 py-4 border-b border-white/20">
-          <h3 className="text-base sm:text-lg font-semibold">Recent Station Activity</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-white">Recent Station Activity</h3>
         </div>
         <div className="p-4 sm:p-6 space-y-4">
           {stats?.recentActivity && stats.recentActivity.length > 0 ? (
@@ -237,7 +237,7 @@ export default function OCSDashboard() {
                   }`}
                 />
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm sm:text-base font-medium">
+                  <h4 className="text-sm sm:text-base font-medium text-white">
                     {activity.action.replace(/_/g, ' ').toLowerCase()}
                   </h4>
                   <p className="text-gray-400 text-xs sm:text-sm mt-1">

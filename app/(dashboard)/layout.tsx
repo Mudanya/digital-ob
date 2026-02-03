@@ -1,12 +1,12 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { AuthProvider } from '@/contexts/auth-context';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { AuthProvider } from "@/contexts/auth-context";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Digital OB - National Police Service',
-  description: 'Digital Occurrence Book System for Kenya Police Service',
+  title: "Digital OB - National Police Service",
+  description: "Digital Occurrence Book System for Kenya Police Service",
 };
 
 export default function RootLayout({
@@ -15,10 +15,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white min-h-screen`}>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
-    </html>
+    <div
+      className={` bg-gradient-to-br from-slate-900 text-white via-blue-900 to-slate-900  min-h-screen`}
+    >
+      <AuthProvider>{children}</AuthProvider>
+    </div>
   );
 }

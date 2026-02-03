@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Shield, Eye, EyeOff, Loader2, CheckCircle2, Users, BarChart3 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -123,14 +125,14 @@ const LoginPage = () => {
                     <label htmlFor="identifier" className="block text-xs font-semibold text-gray-700 mb-1.5">
                       Service Number or Email
                     </label>
-                    <input
+                    <Input
                       id="identifier"
                       type="text"
                       required
                       value={formData.identifier}
                       onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
                       placeholder="Enter credentials"
-                      className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-sm text-gray-900 placeholder:text-gray-400"
+                      className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400 h-10"
                     />
                   </div>
 
@@ -140,14 +142,14 @@ const LoginPage = () => {
                       Password
                     </label>
                     <div className="relative">
-                      <input
+                      <Input
                         id="password"
                         type={showPassword ? "text" : "password"}
                         required
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                         placeholder="Enter password"
-                        className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-sm text-gray-900 placeholder:text-gray-400"
+                        className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400 h-10 pr-10"
                       />
                       <button
                         type="button"
@@ -161,15 +163,15 @@ const LoginPage = () => {
 
                   {/* Remember & Forgot */}
                   <div className="flex items-center justify-between text-xs">
-                    <label className="flex items-center gap-1.5 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                      />
-                      <span className="text-gray-700 group-hover:text-gray-900 transition-colors">
+                    <div className="flex items-center gap-1.5">
+                      <Checkbox id="remember-me" />
+                      <label
+                        htmlFor="remember-me"
+                        className="text-gray-700 hover:text-gray-900 transition-colors cursor-pointer"
+                      >
                         Remember me
-                      </span>
-                    </label>
+                      </label>
+                    </div>
                     <a href="/forgot-password" className="text-blue-600 hover:text-blue-700 font-medium transition-colors">
                       Forgot password?
                     </a>
