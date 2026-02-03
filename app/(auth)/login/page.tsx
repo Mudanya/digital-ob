@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { Shield, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { Input } from '@/components/ui/input';
 
 export default function LoginPage() {
   const { login, isLoading } = useAuth();
@@ -70,14 +71,14 @@ export default function LoginPage() {
               >
                 Service Number
               </label>
-              <input
+              <Input
                 id="serviceNumber"
                 name="serviceNumber"
                 type="text"
                 required
                 value={serviceNumber}
                 onChange={(e) => setServiceNumber(e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                className="bg-white/10 border-white/20 text-white placeholder-blue-300 h-12 focus-visible:ring-blue-400"
                 placeholder="Enter your service number"
                 disabled={isSubmitting}
               />
@@ -90,14 +91,14 @@ export default function LoginPage() {
               >
                 Password
               </label>
-              <input
+              <Input
                 id="password"
                 name="password"
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                className="bg-white/10 border-white/20 text-white placeholder-blue-300 h-12 focus-visible:ring-blue-400"
                 placeholder="Enter your password"
                 disabled={isSubmitting}
               />

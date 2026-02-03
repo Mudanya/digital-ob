@@ -16,7 +16,7 @@ const DashboardCard = ({
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <p className="text-sm sm:text-base text-gray-400 mb-1">{title}</p>
-          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">
+          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-white">
             {value}
           </h3>
           {change && (

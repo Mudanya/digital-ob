@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import DashboardLayout from '@/components/layout/dashboard-layout';
 import { TrendingUp, BarChart3, PieChart, MapPin, Calendar, AlertTriangle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function AnalyticsPage() {
   const { token, user } = useAuth();
@@ -30,16 +31,17 @@ export default function AnalyticsPage() {
         <div className="bg-white/10 rounded-xl border border-white/20 p-4 mb-6">
           <div className="flex items-center gap-4">
             <Calendar className="h-5 w-5 text-gray-400" />
-            <select
-              value={dateRange}
-              onChange={(e) => setDateRange(e.target.value)}
-              className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="week">Last 7 Days</option>
-              <option value="month">Last 30 Days</option>
-              <option value="quarter">Last 3 Months</option>
-              <option value="year">Last 12 Months</option>
-            </select>
+            <Select value={dateRange} onValueChange={setDateRange}>
+              <SelectTrigger className="bg-white/5 border-white/10 text-white w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-white/10">
+                <SelectItem value="week" className="text-white">Last 7 Days</SelectItem>
+                <SelectItem value="month" className="text-white">Last 30 Days</SelectItem>
+                <SelectItem value="quarter" className="text-white">Last 3 Months</SelectItem>
+                <SelectItem value="year" className="text-white">Last 12 Months</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

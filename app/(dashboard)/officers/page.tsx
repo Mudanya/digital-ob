@@ -6,6 +6,8 @@ import DashboardLayout from '@/components/layout/dashboard-layout';
 import Link from 'next/link';
 import { Plus, Search, Users, Shield, UserCheck, UserX } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Officer {
   id: string;
@@ -147,41 +149,43 @@ export default function OfficersPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
+              <Input
                 type="text"
                 placeholder="Search officers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400"
               />
             </div>
 
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Ranks</option>
-              <option value="INSPECTOR_GENERAL">Inspector General</option>
-              <option value="DEPUTY_INSPECTOR_GENERAL">Deputy IG</option>
-              <option value="COUNTY_COMMANDER">County Commander</option>
-              <option value="OCPD">OCPD</option>
-              <option value="OCS">OCS</option>
-              <option value="INSPECTOR">Inspector</option>
-              <option value="SERGEANT">Sergeant</option>
-              <option value="CORPORAL">Corporal</option>
-              <option value="CONSTABLE">Constable</option>
-            </select>
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+              <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                <SelectValue placeholder="All Ranks" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-white/10">
+                <SelectItem value="" className="text-white">All Ranks</SelectItem>
+                <SelectItem value="INSPECTOR_GENERAL" className="text-white">Inspector General</SelectItem>
+                <SelectItem value="DEPUTY_INSPECTOR_GENERAL" className="text-white">Deputy IG</SelectItem>
+                <SelectItem value="COUNTY_COMMANDER" className="text-white">County Commander</SelectItem>
+                <SelectItem value="OCPD" className="text-white">OCPD</SelectItem>
+                <SelectItem value="OCS" className="text-white">OCS</SelectItem>
+                <SelectItem value="INSPECTOR" className="text-white">Inspector</SelectItem>
+                <SelectItem value="SERGEANT" className="text-white">Sergeant</SelectItem>
+                <SelectItem value="CORPORAL" className="text-white">Corporal</SelectItem>
+                <SelectItem value="CONSTABLE" className="text-white">Constable</SelectItem>
+              </SelectContent>
+            </Select>
 
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Status</option>
-              <option value="true">Active</option>
-              <option value="false">Inactive</option>
-            </select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-white/10">
+                <SelectItem value="" className="text-white">All Status</SelectItem>
+                <SelectItem value="true" className="text-white">Active</SelectItem>
+                <SelectItem value="false" className="text-white">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

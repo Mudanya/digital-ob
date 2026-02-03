@@ -109,7 +109,7 @@ const RecentCases = ({ caseData }: RecentCasesProps) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-red-500 text-xl font-bold">•</span>
-            <h4 className="font-semibold text-sm sm:text-base truncate">
+            <h4 className="font-semibold text-sm sm:text-base text-white truncate">
               {caseData.obNumber}
             </h4>
             <Badge className={`${getPriorityColor(caseData.priority)} text-xs`}>

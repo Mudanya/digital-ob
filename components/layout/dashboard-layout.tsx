@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Sidebar from '@/components/layout/sidebar';
 import { Bell, Search, Menu, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -61,10 +62,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="flex-1 max-w-2xl ml-4 lg:ml-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
+                <Input
                   type="text"
                   placeholder="Search cases, officers, OB numbers..."
-                  className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400"
                 />
               </div>
             </div>

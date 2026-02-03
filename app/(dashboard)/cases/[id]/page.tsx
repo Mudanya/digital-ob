@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useParams, useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layout/dashboard-layout';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   ArrowLeft,
   MapPin,
@@ -359,20 +360,21 @@ export default function CaseDetailPage() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   New Status
                 </label>
-                <select
-                  value={newStatus}
-                  onChange={(e) => setNewStatus(e.target.value)}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="REPORTED">Reported</option>
-                  <option value="UNDER_INVESTIGATION">Under Investigation</option>
-                  <option value="ASSIGNED_TO_DCI">Assigned to DCI</option>
-                  <option value="ASSIGNED_TO_PROSECUTION">Assigned to Prosecution</option>
-                  <option value="ASSIGNED_TO_ARBITRATION">Assigned to Arbitration</option>
-                  <option value="COURT_FILED">Court Filed</option>
-                  <option value="RESOLVED">Resolved</option>
-                  <option value="CLOSED">Closed</option>
-                </select>
+                <Select value={newStatus} onValueChange={setNewStatus}>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-white/10">
+                    <SelectItem value="REPORTED" className="text-white">Reported</SelectItem>
+                    <SelectItem value="UNDER_INVESTIGATION" className="text-white">Under Investigation</SelectItem>
+                    <SelectItem value="ASSIGNED_TO_DCI" className="text-white">Assigned to DCI</SelectItem>
+                    <SelectItem value="ASSIGNED_TO_PROSECUTION" className="text-white">Assigned to Prosecution</SelectItem>
+                    <SelectItem value="ASSIGNED_TO_ARBITRATION" className="text-white">Assigned to Arbitration</SelectItem>
+                    <SelectItem value="COURT_FILED" className="text-white">Court Filed</SelectItem>
+                    <SelectItem value="RESOLVED" className="text-white">Resolved</SelectItem>
+                    <SelectItem value="CLOSED" className="text-white">Closed</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex gap-3">

@@ -6,6 +6,8 @@ import DashboardLayout from '@/components/layout/dashboard-layout';
 import Link from 'next/link';
 import { Plus, Search, Filter, SlidersHorizontal, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function CasesPage() {
   const { token } = useAuth();
@@ -93,61 +95,64 @@ export default function CasesPage() {
             {/* Search Bar */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
+              <Input
                 type="text"
                 placeholder="Search by OB number or case title..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400"
               />
             </div>
 
             {/* Filters */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All Status</option>
-                <option value="REPORTED">Reported</option>
-                <option value="UNDER_INVESTIGATION">Under Investigation</option>
-                <option value="ASSIGNED_TO_DCI">Assigned to DCI</option>
-                <option value="ASSIGNED_TO_PROSECUTION">Assigned to Prosecution</option>
-                <option value="COURT_FILED">Court Filed</option>
-                <option value="RESOLVED">Resolved</option>
-                <option value="CLOSED">Closed</option>
-              </select>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-white/10">
+                  <SelectItem value="all" className="text-white">All Status</SelectItem>
+                  <SelectItem value="REPORTED" className="text-white">Reported</SelectItem>
+                  <SelectItem value="UNDER_INVESTIGATION" className="text-white">Under Investigation</SelectItem>
+                  <SelectItem value="ASSIGNED_TO_DCI" className="text-white">Assigned to DCI</SelectItem>
+                  <SelectItem value="ASSIGNED_TO_PROSECUTION" className="text-white">Assigned to Prosecution</SelectItem>
+                  <SelectItem value="COURT_FILED" className="text-white">Court Filed</SelectItem>
+                  <SelectItem value="RESOLVED" className="text-white">Resolved</SelectItem>
+                  <SelectItem value="CLOSED" className="text-white">Closed</SelectItem>
+                </SelectContent>
+              </Select>
 
-              <select
-                value={priorityFilter}
-                onChange={(e) => setPriorityFilter(e.target.value)}
-                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All Priority</option>
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
-                <option value="URGENT">Urgent</option>
-              </select>
+              <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
+                  <SelectValue placeholder="All Priority" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-white/10">
+                  <SelectItem value="all" className="text-white">All Priority</SelectItem>
+                  <SelectItem value="LOW" className="text-white">Low</SelectItem>
+                  <SelectItem value="MEDIUM" className="text-white">Medium</SelectItem>
+                  <SelectItem value="HIGH" className="text-white">High</SelectItem>
+                  <SelectItem value="URGENT" className="text-white">Urgent</SelectItem>
+                </SelectContent>
+              </Select>
 
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All Categories</option>
-                <option value="THEFT">Theft</option>
-                <option value="ASSAULT">Assault</option>
-                <option value="ROBBERY">Robbery</option>
-                <option value="MURDER">Murder</option>
-                <option value="TRAFFIC">Traffic</option>
-                <option value="DOMESTIC">Domestic</option>
-                <option value="FRAUD">Fraud</option>
-                <option value="CYBERCRIME">Cybercrime</option>
-                <option value="NARCOTICS">Narcotics</option>
-                <option value="OTHER">Other</option>
-              </select>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-white/10">
+                  <SelectItem value="all" className="text-white">All Categories</SelectItem>
+                  <SelectItem value="THEFT" className="text-white">Theft</SelectItem>
+                  <SelectItem value="ASSAULT" className="text-white">Assault</SelectItem>
+                  <SelectItem value="ROBBERY" className="text-white">Robbery</SelectItem>
+                  <SelectItem value="MURDER" className="text-white">Murder</SelectItem>
+                  <SelectItem value="TRAFFIC" className="text-white">Traffic</SelectItem>
+                  <SelectItem value="DOMESTIC" className="text-white">Domestic</SelectItem>
+                  <SelectItem value="FRAUD" className="text-white">Fraud</SelectItem>
+                  <SelectItem value="CYBERCRIME" className="text-white">Cybercrime</SelectItem>
+                  <SelectItem value="NARCOTICS" className="text-white">Narcotics</SelectItem>
+                  <SelectItem value="OTHER" className="text-white">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>

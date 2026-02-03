@@ -5,6 +5,8 @@ import { useAuth } from '@/contexts/auth-context';
 import DashboardLayout from '@/components/layout/dashboard-layout';
 import { Activity, Search, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ActivityLog {
   id: string;
@@ -84,29 +86,30 @@ export default function AuditLogsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
+              <Input
                 type="text"
                 placeholder="Search logs..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400"
               />
             </div>
 
-            <select
-              value={actionFilter}
-              onChange={(e) => setActionFilter(e.target.value)}
-              className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Actions</option>
-              <option value="USER_LOGIN">User Login</option>
-              <option value="USER_LOGOUT">User Logout</option>
-              <option value="CASE_CREATED">Case Created</option>
-              <option value="CASE_UPDATED">Case Updated</option>
-              <option value="CASE_DELETED">Case Deleted</option>
-              <option value="OFFICER_CREATED">Officer Created</option>
-              <option value="OFFICER_UPDATED">Officer Updated</option>
-            </select>
+            <Select value={actionFilter} onValueChange={setActionFilter}>
+              <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                <SelectValue placeholder="All Actions" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-white/10">
+                <SelectItem value="" className="text-white">All Actions</SelectItem>
+                <SelectItem value="USER_LOGIN" className="text-white">User Login</SelectItem>
+                <SelectItem value="USER_LOGOUT" className="text-white">User Logout</SelectItem>
+                <SelectItem value="CASE_CREATED" className="text-white">Case Created</SelectItem>
+                <SelectItem value="CASE_UPDATED" className="text-white">Case Updated</SelectItem>
+                <SelectItem value="CASE_DELETED" className="text-white">Case Deleted</SelectItem>
+                <SelectItem value="OFFICER_CREATED" className="text-white">Officer Created</SelectItem>
+                <SelectItem value="OFFICER_UPDATED" className="text-white">Officer Updated</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
