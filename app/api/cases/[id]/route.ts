@@ -46,9 +46,8 @@ export const GET =
               id: true,
               firstName: true,
               lastName: true,
-              serviceNumber: true,
               rank: true,
-              phoneNumber: true,
+              serviceNumber: true,
             },
           },
           assignedTo: {
@@ -56,53 +55,41 @@ export const GET =
               id: true,
               firstName: true,
               lastName: true,
-              serviceNumber: true,
               rank: true,
-              phoneNumber: true,
+              serviceNumber: true,
             },
           },
-          station: {
-            select: {
-              id: true,
-              name: true,
-              code: true,
-              address: true,
-              phoneNumber: true,
-            },
-          },
+          station: true,
           obEntry: true,
+          reportingPersons: true,
+          witnesses: true,
           suspects: true,
           victims: true,
-          witnesses: true,
+          itemsLost: true,
+          itemsRecovered: true,
+          vehicles: true,
+          cellAdmissions: {
+            include: {
+              authorizedBy: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                  rank: true,
+                },
+              },
+            },
+          },
+          payments: true,
           evidence: true,
           caseUpdates: {
-            orderBy: { createdAt: 'desc' },
+            orderBy: { createdAt: "desc" },
           },
-          courtFiles: {
-            orderBy: { createdAt: 'desc' },
-          },
+          courtFiles: true,
         },
       });
 
       if (!caseData) {
-        return NextResponse.json({ error: 'Case not found' }, { status: 404 });
-      }
-
-      // Check access permissions
-      if (
-        user.role !== 'INSPECTOR_GENERAL' &&
-        user.role !== 'DEPUTY_INSPECTOR_GENERAL'
-      ) {
-        if (user.role === 'COUNTY_COMMANDER') {
-          const station = await prisma.station.findUnique({
-            where: { id: caseData.stationId },
-          });
-          if (station?.countyId !== user.countyId) {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-          }
-        } else if (caseData.stationId !== user.stationId) {
-          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-        }
+        return NextResponse.json({ error: "Case not found" }, { status: 404 });
       }
 
       return NextResponse.json(caseData);

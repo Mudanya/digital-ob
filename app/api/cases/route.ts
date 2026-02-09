@@ -137,123 +137,165 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
 
     const body = await req.json();
 
-    // Validate input
-    const validation = createCaseSchema.safeParse(body);
-    if (!validation.success) {
-      return NextResponse.json(
-        { error: 'Invalid input', details: validation.error.message },
-        { status: 400 }
-      );
-    }
-
-    const data = validation.data;
-
-    // Determine station ID
-    const stationId = data.stationId || req.user.stationId;
-    if (!stationId) {
-      return NextResponse.json(
-        { error: 'Station ID is required' },
-        { status: 400 }
-      );
-    }
-
-    // Get station for OB number generation
-    const station = await prisma.station.findUnique({
-      where: { id: stationId },
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.userId },
+      include: { station: true },
     });
 
-    if (!station) {
+    if (!user || !user.stationId) {
       return NextResponse.json(
-        { error: 'Station not found' },
+        { error: "User or station not found" },
         { status: 404 }
       );
     }
 
-    // Generate OB number
+    // Generate OB Number
+    const lastEntry = await prisma.oBEntry.findFirst({
+      where: { stationId: user.stationId },
+      orderBy: { entryNumber: "desc" },
+    });
+
+    const nextEntryNumber = (lastEntry?.entryNumber || 0) + 1;
     const year = new Date().getFullYear();
-    const caseCount = await prisma.case.count({
-      where: {
-        stationId,
-        createdAt: {
-          gte: new Date(`${year}-01-01`),
+    const obNumber = `${user.station?.code}/${year}/${String(nextEntryNumber).padStart(4, "0")}`;
+
+    // Create case with all related data
+    const newCase = await prisma.case.create({
+      data: {
+        obNumber,
+        title: body.title,
+        description: body.description,
+        category: body.category,
+        priority: body.priority || "MEDIUM",
+        location: body.location,
+        latitude: body.latitude,
+        longitude: body.longitude,
+        incidentDate: new Date(body.incidentDate),
+        reportedById: user.id,
+        assignedToId: body.assignedToId || null,
+        stationId: user.stationId,
+
+        // Create OB Entry
+        obEntry: {
+          create: {
+            entryNumber: nextEntryNumber,
+            stationId: user.stationId,
+            officerId: user.id,
+            description: body.description,
+          },
         },
+
+        // Create Reporting Persons
+        reportingPersons: body.reportingPersons?.length > 0 ? {
+          create: body.reportingPersons.map((person: any) => ({
+            name: person.name,
+            contact: person.contact,
+            idNumber: person.idNumber,
+            address: person.address,
+            email: person.email,
+          })),
+        } : undefined,
+
+        // Create Witnesses
+        witnesses: body.witnesses?.length > 0 ? {
+          create: body.witnesses.map((witness: any) => ({
+            name: witness.name,
+            contact: witness.contact,
+            address: witness.address,
+            statement: witness.statement,
+          })),
+        } : undefined,
+
+        // Create Suspects
+        suspects: body.suspects?.length > 0 ? {
+          create: body.suspects.map((suspect: any) => ({
+            firstName: suspect.firstName,
+            lastName: suspect.lastName,
+            idNumber: suspect.idNumber,
+            phoneNumber: suspect.phoneNumber,
+            description: suspect.description,
+            charges: suspect.charges,
+            isCustody: suspect.isCustody || false,
+            arrestDate: suspect.isCustody ? new Date() : null,
+          })),
+        } : undefined,
+
+        // Create Items Lost
+        itemsLost: body.itemsLost?.length > 0 ? {
+          create: body.itemsLost.map((item: any) => ({
+            description: item.description,
+            quantity: parseInt(item.quantity) || 1,
+            estimatedValue: item.estimatedValue ? parseFloat(item.estimatedValue) : null,
+          })),
+        } : undefined,
+
+        // Create Items Recovered
+        itemsRecovered: body.itemsRecovered?.length > 0 ? {
+          create: body.itemsRecovered.map((item: any) => ({
+            description: item.description,
+            quantity: parseInt(item.quantity) || 1,
+            condition: item.condition,
+            locationFound: item.locationFound,
+            recoveredDate: new Date(),
+          })),
+        } : undefined,
+
+        // Create Vehicles
+        vehicles: body.vehicles?.length > 0 ? {
+          create: body.vehicles.map((vehicle: any) => ({
+            make: vehicle.make,
+            model: vehicle.model,
+            registrationNumber: vehicle.registrationNumber,
+            color: vehicle.color,
+            ownerName: vehicle.ownerName,
+          })),
+        } : undefined,
+
+        // Create Cell Admission
+        cellAdmissions: body.cellAdmission?.admitted ? {
+          create: {
+            suspectName: body.cellAdmission.suspectName,
+            cellNumber: body.cellAdmission.cellNumber,
+            admissionTime: new Date(body.cellAdmission.admissionTime),
+            itemsAtCounter: body.cellAdmission.itemsAtCounter,
+            reason: body.cellAdmission.reason,
+            authorizedById: user.id,
+            status: "IN_CUSTODY",
+          },
+        } : undefined,
+
+        // Create Payment
+        payments: body.payment?.required ? {
+          create: {
+            paymentType: body.payment.type,
+            amount: parseFloat(body.payment.amount),
+            status: body.payment.status || "PENDING",
+            paymentMethod: body.payment.method || null,
+            transactionId: body.payment.transactionId || null,
+            paidAt: body.payment.status === "PAID" ? new Date() : null,
+          },
+        } : undefined,
+      },
+      include: {
+        reportedBy: true,
+        assignedTo: true,
+        station: true,
+        obEntry: true,
       },
     });
-    const obNumber = `OB/${year}/${String(caseCount + 1).padStart(6, '0')}`;
 
-    // Create case with OB entry
-    const caseData = await prisma.$transaction(async (tx) => {
-      // Create case
-      const newCase = await tx.case.create({
-        data: {
-          obNumber,
-          title: data.title,
-          description: data.description,
-          category: data.category,
-          priority: data.priority || 'MEDIUM',
-          location: data.location,
-          latitude: data.latitude,
-          longitude: data.longitude,
-          incidentDate: new Date(data.incidentDate),
-          reportedById: req.user!.userId,
-          stationId,
-        },
-        include: {
-          reportedBy: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              serviceNumber: true,
-              rank: true,
-            },
-          },
-          station: {
-            select: {
-              id: true,
-              name: true,
-              code: true,
-            },
-          },
-        },
-      });
-
-      // Get next entry number for the station
-      const lastEntry = await tx.oBEntry.findFirst({
-        where: { stationId },
-        orderBy: { entryNumber: 'desc' },
-      });
-      const entryNumber = (lastEntry?.entryNumber || 0) + 1;
-
-      // Create OB entry
-      await tx.oBEntry.create({
-        data: {
-          caseId: newCase.id,
-          entryNumber,
-          stationId,
-          officerId: req.user!.userId,
-          description: data.description,
-        },
-      });
-
-      // Log activity
-      await tx.activityLog.create({
-        data: {
-          userId: req.user!.userId,
-          action: 'CREATE_CASE',
-          entityType: 'CASE',
-          entityId: newCase.id,
-          metadata: {
-            obNumber: newCase.obNumber,
-            title: newCase.title,
-          },
-        },
-      });
-
-      return newCase;
+    // Log activity
+    await prisma.activityLog.create({
+      data: {
+        userId: user.id,
+        action: "CREATE_CASE",
+        entityType: "Case",
+        entityId: newCase.id,
+        metadata: { obNumber: newCase.obNumber },
+      },
     });
 
-    return NextResponse.json(caseData, { status: 201 });
+    return NextResponse.json(newCase, { status: 201 });
   } catch (error) {
     console.error('Create case error:', error);
     return NextResponse.json(
