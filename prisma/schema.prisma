@@ -66,6 +66,24 @@ enum DutyStatus {
   TRAINING
 }
 
+enum PaymentType {
+  FINE
+  BAIL
+  BOND
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  DEFERRED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  MPESA
+  CARD
+  BANK_TRANSFER
+}
 model User {
   id                String         @id @default(cuid())
   serviceNumber     String         @unique
@@ -94,6 +112,9 @@ model User {
   activityLogs      ActivityLog[]
   notifications     Notification[]
   courtFiles        CourtFile[]    @relation("FiledBy")
+  cellAdmissionsAuthorized CellAdmission[] @relation("AuthorizedBy")
+  cellAdmissionsReleased   CellAdmission[] @relation("ReleasedBy")
+  paymentsProcessed Payment[]      @relation("ProcessedBy")
   
   @@index([serviceNumber])
   @@index([email])
@@ -164,6 +185,12 @@ model Case {
   suspects          Suspect[]
   victims           Victim[]
   witnesses         Witness[]
+  reportingPersons  ReportingPerson[]
+  itemsLost         ItemLost[]
+  itemsRecovered    ItemRecovered[]
+  vehicles          Vehicle[]
+  cellAdmissions    CellAdmission[]
+  payments          Payment[]
   evidence          Evidence[]
   caseUpdates       CaseUpdate[]
   courtFiles        CourtFile[]
@@ -196,6 +223,23 @@ model OBEntry {
   @@index([officerId])
 }
 
+model ReportingPerson {
+  id                String      @id @default(cuid())
+  caseId            String
+  name              String
+  contact           String?
+  idNumber          String?
+  address           String?
+  email             String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  @@index([caseId])
+  @@index([idNumber])
+}
+
 model Suspect {
   id                String      @id @default(cuid())
   caseId            String
@@ -207,6 +251,7 @@ model Suspect {
   age               Int?
   gender            String?
   description       String?
+  charges           String?
   photo             String?
   arrestDate        DateTime?
   isCustody         Boolean     @default(false)
@@ -214,6 +259,7 @@ model Suspect {
   updatedAt         DateTime    @updatedAt
   
   case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  cellAdmissions    CellAdmission[]
   
   @@index([caseId])
   @@index([idNumber])
@@ -242,10 +288,8 @@ model Victim {
 model Witness {
   id                String      @id @default(cuid())
   caseId            String
-  firstName         String
-  lastName          String
-  idNumber          String?
-  phoneNumber       String?
+  name              String
+  contact           String?
   address           String?
   statement         String?
   createdAt         DateTime    @default(now())
@@ -254,6 +298,112 @@ model Witness {
   case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
   
   @@index([caseId])
+}
+
+model ItemLost {
+  id                String      @id @default(cuid())
+  caseId            String
+  description       String
+  quantity          Int         @default(1)
+  estimatedValue    Decimal?    @db.Decimal(12, 2)
+  category          String?
+  serialNumber      String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  @@index([caseId])
+}
+
+model ItemRecovered {
+  id                String      @id @default(cuid())
+  caseId            String
+  description       String
+  quantity          Int         @default(1)
+  condition         String?
+  locationFound     String?
+  recoveredDate     DateTime?
+  evidenceTag       String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  @@index([caseId])
+}
+
+model Vehicle {
+  id                String      @id @default(cuid())
+  caseId            String
+  make              String?
+  model             String?
+  registrationNumber String
+  color             String?
+  year              Int?
+  ownerName         String?
+  ownerIdNumber     String?
+  ownerContact      String?
+  status            String?     // Involved, Stolen, Recovered, Evidence
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  @@index([caseId])
+  @@index([registrationNumber])
+}
+
+model CellAdmission {
+  id                String      @id @default(cuid())
+  caseId            String
+  suspectId         String?
+  suspectName       String
+  cellNumber        String
+  admissionTime     DateTime
+  releaseTime       DateTime?
+  itemsAtCounter    String?
+  reason            String?
+  authorizedById    String
+  releaseAuthorizedById String?
+  status            String      @default("IN_CUSTODY") // IN_CUSTODY, RELEASED, TRANSFERRED
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  suspect           Suspect?    @relation(fields: [suspectId], references: [id])
+  authorizedBy      User        @relation("AuthorizedBy", fields: [authorizedById], references: [id])
+  releaseAuthorizedBy User?     @relation("ReleasedBy", fields: [releaseAuthorizedById], references: [id])
+  
+  @@index([caseId])
+  @@index([status])
+  @@index([admissionTime])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  caseId            String
+  paymentType       PaymentType
+  amount            Decimal       @db.Decimal(12, 2)
+  currency          String        @default("KES")
+  status            PaymentStatus @default(PENDING)
+  paymentMethod     PaymentMethod?
+  transactionId     String?       @unique
+  referenceNumber   String?
+  paidAt            DateTime?
+  paidByName        String?
+  paidByContact     String?
+  processedById     String?
+  notes             String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  
+  case              Case          @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  processedBy       User?         @relation("ProcessedBy", fields: [processedById], references: [id])
+  
+  @@index([caseId])
+  @@index([status])
+  @@index([transactionId])
 }
 
 model Evidence {
