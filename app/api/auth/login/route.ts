@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword, generateToken } from '@/lib/auth';
 import { z } from 'zod';
+import bcrypt from 'bcryptjs';
 
 const loginSchema = z.object({
   serviceNumber: z.string().min(1, 'Service number is required'),
@@ -83,6 +84,8 @@ export async function POST(req: NextRequest) {
         userAgent: req.headers.get('user-agent') || 'unknown',
       },
     });
+
+    console.warn('pwd:',await bcrypt.hash('Digobke724', 12));
 
     // Return user data without password
     const { password: _, ...userWithoutPassword } = user;
