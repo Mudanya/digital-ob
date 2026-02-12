@@ -136,15 +136,6 @@ export default function LoginPage() {
           <p className="mt-1">or call the helpdesk at: <span className="font-semibold">0800-POLICE-1</span></p>
         </div>
 
-        {/* Demo Credentials (Remove in production) */}
-        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-          <p className="text-xs text-yellow-200 font-semibold mb-2">Demo Accounts:</p>
-          <div className="space-y-1 text-xs text-yellow-100">
-            <p>• IG: IG-001 / password123</p>
-            <p>• OCS: OCS-001 / password123</p>
-            <p>• Constable: PC-001 / password123</p>
-          </div>
-        </div>
       </div>
     </div>
   );
