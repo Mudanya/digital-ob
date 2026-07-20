@@ -30,6 +30,7 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       include: {
         case: {
           select: {
+            id: true,
             obNumber: true,
             title: true,
             category: true,

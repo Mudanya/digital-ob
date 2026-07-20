@@ -26,6 +26,9 @@ import {
   Activity,
   Folder,
   X,
+  Crosshair,
+  UserCheck,
+  ScrollText,
 } from 'lucide-react';
 import { UserRole } from '@/generated/prisma/enums';
 
@@ -116,6 +119,45 @@ const navigationItems: MenuItem[] = [
       'OCPD',
       'OCS',
       'INSPECTOR',
+    ],
+  },
+  {
+    name: 'Charge Sheets',
+    href: '/charge-sheets/new',
+    icon: <ScrollText className="h-5 w-5" />,
+    roles: [
+      'INSPECTOR_GENERAL',
+      'DEPUTY_INSPECTOR_GENERAL',
+      'COUNTY_COMMANDER',
+      'OCPD',
+      'OCS',
+      'INSPECTOR',
+    ],
+  },
+  {
+    name: 'Arms Registry',
+    href: '/arms',
+    icon: <Crosshair className="h-5 w-5" />,
+    roles: [
+      'INSPECTOR_GENERAL',
+      'DEPUTY_INSPECTOR_GENERAL',
+      'COUNTY_COMMANDER',
+      'OCPD',
+      'OCS',
+      'OCP',
+      'INSPECTOR',
+    ],
+  },
+  {
+    name: 'Civilian Firearms',
+    href: '/civilian-firearms',
+    icon: <UserCheck className="h-5 w-5" />,
+    roles: [
+      'INSPECTOR_GENERAL',
+      'DEPUTY_INSPECTOR_GENERAL',
+      'COUNTY_COMMANDER',
+      'OCPD',
+      'OCS',
     ],
   },
   {
