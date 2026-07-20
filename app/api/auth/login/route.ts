@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    console.warn('pwd:',await bcrypt.hash('Digobke724', 12));
+    // console.warn('pwd:',await bcrypt.hash('AskqariKo26!', 12));
 
     // Return user data without password
     const { password: _, ...userWithoutPassword } = user;

@@ -27,6 +27,8 @@ import {
   Globe,
   TrendingUp,
   LogIn,
+  Leaf,
+  Search,
 } from "lucide-react";
 
 const LandingPage = () => {
@@ -190,6 +192,20 @@ const LandingPage = () => {
                   Support
                 </a>
                 <Link
+                  href="/track"
+                  className="px-6 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition shadow-md flex items-center gap-2"
+                >
+                  <Search className="h-4 w-4" />
+                  Track Case
+                </Link>
+                <Link
+                  href="/ngao/login"
+                  className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg hover:from-green-700 hover:to-green-800 transition shadow-md flex items-center gap-2"
+                >
+                  <Leaf className="h-4 w-4" />
+                  NGAO Portal
+                </Link>
+                <Link
                   href="/login"
                   className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition shadow-md flex items-center gap-2"
                 >
@@ -248,10 +264,22 @@ const LandingPage = () => {
                   Support
                 </a>
                 <Link
+                  href="/track"
+                  className="block px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg text-center"
+                >
+                  Track Case
+                </Link>
+                <Link
+                  href="/ngao/login"
+                  className="block px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg text-center"
+                >
+                  NGAO Portal
+                </Link>
+                <Link
                   href="/login"
                   className="block px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg text-center"
                 >
-                  Login
+                  Officer Login
                 </Link>
               </div>
             )}
@@ -284,7 +312,21 @@ const LandingPage = () => {
                 className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2"
               >
                 <LogIn className="h-5 w-5" />
-                Access System
+                Officer Login
+              </Link>
+              <Link
+                href="/ngao/login"
+                className="px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2"
+              >
+                <Leaf className="h-5 w-5" />
+                NGAO Portal
+              </Link>
+              <Link
+                href="/track"
+                className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl font-semibold hover:from-yellow-600 hover:to-yellow-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2"
+              >
+                <Search className="h-5 w-5" />
+                Track My Case
               </Link>
               <a
                 href="#about"
@@ -298,9 +340,9 @@ const LandingPage = () => {
             {/* Quick Stats */}
             <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
-                { label: "Police Stations", value: "800+" },
-                { label: "Active Officers", value: "100K+" },
-                { label: "Daily Entries", value: "5000+" },
+                { label: "Counties Covered", value: "47" },
+                { label: "Police Stations", value: "290+" },
+                { label: "NPS Officers", value: "107K+" },
                 { label: "System Uptime", value: "99.9%" },
               ].map((stat, index) => (
                 <div
@@ -610,14 +652,32 @@ const LandingPage = () => {
               your service credentials.
             </p>
 
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-900 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              <LogIn className="h-5 w-5" />
-              Access Digital OB System
-              <ArrowRight className="h-5 w-5" />
-            </Link>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-900 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <LogIn className="h-5 w-5" />
+                Officer Login
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+              <Link
+                href="/ngao/login"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-500 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-green-400"
+              >
+                <Leaf className="h-5 w-5" />
+                NGAO Portal
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+              <Link
+                href="/track"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-yellow-500 text-white rounded-xl font-semibold hover:bg-yellow-400 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-yellow-400"
+              >
+                <Search className="h-5 w-5" />
+                Track My Case
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+            </div>
 
             <p className="mt-6 text-sm text-blue-200">
               Need access? Contact your station administrator or IT support
@@ -784,7 +844,17 @@ const LandingPage = () => {
                   </li>
                   <li>
                     <Link href="/login" className="hover:text-white transition">
-                      Login
+                      Officer Login
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/ngao/login" className="text-green-400 hover:text-green-300 transition">
+                      NGAO Portal
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/track" className="text-yellow-400 hover:text-yellow-300 transition">
+                      Track My Case
                     </Link>
                   </li>
                 </ul>

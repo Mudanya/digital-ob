@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { useParams, useRouter } from "next/navigation";
 import DashboardLayout from "@/components/layout/dashboard-layout";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -95,195 +97,250 @@ export default function CaseDetailPage() {
   };
 
   const generatePDF = () => {
-    const content = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>OB Entry ${caseData.obNumber}</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; color: #333; }
-    .header { text-align: center; border-bottom: 3px solid #1e40af; padding-bottom: 20px; margin-bottom: 30px; }
-    .header h1 { color: #1e40af; margin: 0; font-size: 28px; }
-    .header .badge { background: #1e40af; color: white; padding: 5px 15px; border-radius: 20px; display: inline-block; margin: 10px 5px; font-size: 12px; }
-    .section { margin-bottom: 25px; page-break-inside: avoid; }
-    .section-title { background: #1e40af; color: white; padding: 8px 12px; margin-bottom: 10px; font-weight: bold; font-size: 16px; }
-    .field { margin-bottom: 8px; padding: 5px 0; }
-    .label { font-weight: bold; color: #333; display: inline-block; width: 180px; }
-    .value { color: #666; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
-    th { background-color: #f3f4f6; font-weight: bold; }
-    .footer { margin-top: 60px; padding-top: 20px; border-top: 2px solid #ddd; text-align: center; color: #666; font-size: 12px; }
-    .signature-section { margin-top: 60px; display: flex; justify-content: space-between; }
-    .signature-box { border-top: 2px solid #333; padding-top: 10px; width: 40%; text-align: center; }
-    @media print { body { margin: 20px; } }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>OCCURRENCE BOOK ENTRY</h1>
-    <div class="badge">${caseData.obNumber}</div>
-    <p style="margin-top: 10px; color: #666; font-size: 14px;">
-      <strong>${caseData.station.name}</strong><br>
-      ${new Date(caseData.createdAt).toLocaleDateString()} at ${new Date(caseData.createdAt).toLocaleTimeString()}
-    </p>
-    <div>
-      <span class="badge" style="background: ${getPriorityColorCSS(caseData.priority)}">${caseData.priority}</span>
-      <span class="badge" style="background: ${getStatusColorCSS(caseData.status)}">${caseData.status.replace(/_/g, ' ')}</span>
-    </div>
-  </div>
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    const contentW = pageW - margin * 2;
+    let y = margin;
 
-  <div class="section">
-    <div class="section-title">INCIDENT DETAILS</div>
-    <div class="field"><span class="label">Title:</span> <span class="value">${caseData.title}</span></div>
-    <div class="field"><span class="label">Category:</span> <span class="value">${caseData.category.replace(/_/g, ' ')}</span></div>
-    <div class="field"><span class="label">Location:</span> <span class="value">${caseData.location}</span></div>
-    <div class="field"><span class="label">Incident Date:</span> <span class="value">${new Date(caseData.incidentDate).toLocaleString()}</span></div>
-    <div class="field"><span class="label">Description:</span><br><span class="value">${caseData.description}</span></div>
-  </div>
+    const blue: [number, number, number] = [30, 64, 175];
+    const white: [number, number, number] = [255, 255, 255];
+    const dark: [number, number, number] = [30, 30, 30];
+    const grey: [number, number, number] = [100, 100, 100];
 
-  <div class="section">
-    <div class="section-title">OFFICERS</div>
-    <div class="field"><span class="label">Reporting Officer:</span> <span class="value">${caseData.reportedBy.rank} ${caseData.reportedBy.firstName} ${caseData.reportedBy.lastName} (${caseData.reportedBy.serviceNumber})</span></div>
-    ${caseData.assignedTo ? `<div class="field"><span class="label">Assigned Officer:</span> <span class="value">${caseData.assignedTo.rank} ${caseData.assignedTo.firstName} ${caseData.assignedTo.lastName} (${caseData.assignedTo.serviceNumber})</span></div>` : ''}
-  </div>
+    const sectionHeader = (title: string) => {
+      doc.setFillColor(...blue);
+      doc.rect(margin, y, contentW, 7, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(...white);
+      doc.text(title, margin + 3, y + 5);
+      y += 10;
+      doc.setTextColor(...dark);
+    };
 
-  ${caseData.reportingPersons && caseData.reportingPersons.length > 0 ? `
-  <div class="section">
-    <div class="section-title">REPORTING PERSONS</div>
-    <table>
-      <tr><th>Name</th><th>Contact</th><th>ID Number</th><th>Address</th></tr>
-      ${caseData.reportingPersons.map((p: any) => `
-        <tr><td>${p.name}</td><td>${p.contact || 'N/A'}</td><td>${p.idNumber || 'N/A'}</td><td>${p.address || 'N/A'}</td></tr>
-      `).join('')}
-    </table>
-  </div>
-  ` : ''}
+    const field = (label: string, value: string) => {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...dark);
+      doc.text(`${label}:`, margin, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...grey);
+      const lines = doc.splitTextToSize(value || 'N/A', contentW - 45);
+      doc.text(lines, margin + 42, y);
+      y += Math.max(6, lines.length * 5);
+    };
 
-  ${caseData.witnesses && caseData.witnesses.length > 0 ? `
-  <div class="section">
-    <div class="section-title">WITNESSES</div>
-    <table>
-      <tr><th>Name</th><th>Contact</th><th>Address</th></tr>
-      ${caseData.witnesses.map((w: any) => `
-        <tr><td>${w.name || (w.firstName + ' ' + w.lastName)}</td><td>${w.contact || w.phoneNumber || 'N/A'}</td><td>${w.address || 'N/A'}</td></tr>
-      `).join('')}
-    </table>
-  </div>
-  ` : ''}
+    const checkPage = (needed = 20) => {
+      if (y + needed > doc.internal.pageSize.getHeight() - margin) {
+        doc.addPage();
+        y = margin;
+      }
+    };
 
-  ${caseData.suspects && caseData.suspects.length > 0 ? `
-  <div class="section">
-    <div class="section-title">SUSPECTS</div>
-    <table>
-      <tr><th>Name</th><th>ID Number</th><th>Contact</th><th>Description</th><th>Charges</th><th>Status</th></tr>
-      ${caseData.suspects.map((s: any) => `
-        <tr>
-          <td>${s.firstName} ${s.lastName}</td>
-          <td>${s.idNumber || 'N/A'}</td>
-          <td>${s.phoneNumber || 'N/A'}</td>
-          <td>${s.description || 'N/A'}</td>
-          <td>${s.charges || 'N/A'}</td>
-          <td>${s.isCustody ? 'In Custody' : 'At Large'}</td>
-        </tr>
-      `).join('')}
-    </table>
-  </div>
-  ` : ''}
+    // ── Header ──────────────────────────────────────────
+    doc.setFillColor(...blue);
+    doc.rect(0, 0, pageW, 28, 'F');
 
-  ${caseData.itemsLost && caseData.itemsLost.length > 0 ? `
-  <div class="section">
-    <div class="section-title">ITEMS LOST / STOLEN</div>
-    <table>
-      <tr><th>Description</th><th>Quantity</th><th>Estimated Value (KES)</th></tr>
-      ${caseData.itemsLost.map((i: any) => `
-        <tr><td>${i.description}</td><td>${i.quantity}</td><td>${i.estimatedValue || 'N/A'}</td></tr>
-      `).join('')}
-    </table>
-  </div>
-  ` : ''}
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(...white);
+    doc.text('OCCURRENCE BOOK ENTRY', pageW / 2, 10, { align: 'center' });
 
-  ${caseData.itemsRecovered && caseData.itemsRecovered.length > 0 ? `
-  <div class="section">
-    <div class="section-title">ITEMS RECOVERED</div>
-    <table>
-      <tr><th>Description</th><th>Quantity</th><th>Condition</th><th>Location Found</th></tr>
-      ${caseData.itemsRecovered.map((i: any) => `
-        <tr><td>${i.description}</td><td>${i.quantity}</td><td>${i.condition || 'N/A'}</td><td>${i.locationFound || 'N/A'}</td></tr>
-      `).join('')}
-    </table>
-  </div>
-  ` : ''}
+    doc.setFontSize(11);
+    doc.text(caseData.obNumber, pageW / 2, 18, { align: 'center' });
 
-  ${caseData.vehicles && caseData.vehicles.length > 0 ? `
-  <div class="section">
-    <div class="section-title">VEHICLES INVOLVED</div>
-    <table>
-      <tr><th>Make/Model</th><th>Reg. No.</th><th>Color</th><th>Owner</th></tr>
-      ${caseData.vehicles.map((v: any) => `
-        <tr><td>${v.make || ''} ${v.model || ''}</td><td>${v.registrationNumber}</td><td>${v.color || 'N/A'}</td><td>${v.ownerName || 'N/A'}</td></tr>
-      `).join('')}
-    </table>
-  </div>
-  ` : ''}
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text(
+      `${caseData.station.name}  ·  ${new Date(caseData.createdAt).toLocaleDateString()}  ·  ${caseData.priority}  ·  ${caseData.status.replace(/_/g, ' ')}`,
+      pageW / 2, 24, { align: 'center' }
+    );
+    y = 34;
 
-  ${caseData.cellAdmissions && caseData.cellAdmissions.length > 0 ? `
-  <div class="section">
-    <div class="section-title">CELL ADMISSION</div>
-    ${caseData.cellAdmissions.map((ca: any) => `
-      <div class="field"><span class="label">Suspect Name:</span> <span class="value">${ca.suspectName}</span></div>
-      <div class="field"><span class="label">Cell Number:</span> <span class="value">${ca.cellNumber}</span></div>
-      <div class="field"><span class="label">Admission Time:</span> <span class="value">${new Date(ca.admissionTime).toLocaleString()}</span></div>
-      <div class="field"><span class="label">Items at Counter:</span> <span class="value">${ca.itemsAtCounter || 'None'}</span></div>
-      <div class="field"><span class="label">Reason:</span> <span class="value">${ca.reason || 'N/A'}</span></div>
-      <div class="field"><span class="label">Status:</span> <span class="value">${ca.status}</span></div>
-    `).join('<hr style="margin: 15px 0;">')}
-  </div>
-  ` : ''}
+    // ── Incident Details ─────────────────────────────────
+    sectionHeader('INCIDENT DETAILS');
+    field('Title', caseData.title);
+    field('Category', caseData.category.replace(/_/g, ' '));
+    field('Location', caseData.location);
+    field('Incident Date', new Date(caseData.incidentDate).toLocaleString());
+    checkPage(20);
+    field('Description', caseData.description);
 
-  ${caseData.payments && caseData.payments.length > 0 ? `
-  <div class="section">
-    <div class="section-title">PAYMENT INFORMATION</div>
-    ${caseData.payments.map((p: any) => `
-      <div class="field"><span class="label">Type:</span> <span class="value">${p.paymentType}</span></div>
-      <div class="field"><span class="label">Amount:</span> <span class="value">KES ${p.amount}</span></div>
-      <div class="field"><span class="label">Status:</span> <span class="value">${p.status}</span></div>
-      ${p.transactionId ? `<div class="field"><span class="label">Transaction ID:</span> <span class="value">${p.transactionId}</span></div>` : ''}
-      ${p.paidAt ? `<div class="field"><span class="label">Paid At:</span> <span class="value">${new Date(p.paidAt).toLocaleString()}</span></div>` : ''}
-    `).join('<hr style="margin: 15px 0;">')}
-  </div>
-  ` : ''}
+    // ── Officers ─────────────────────────────────────────
+    checkPage(20);
+    y += 4;
+    sectionHeader('OFFICERS');
+    field('Reporting Officer', `${caseData.reportedBy.rank} ${caseData.reportedBy.firstName} ${caseData.reportedBy.lastName} (${caseData.reportedBy.serviceNumber})`);
+    if (caseData.assignedTo) {
+      field('Assigned Officer', `${caseData.assignedTo.rank} ${caseData.assignedTo.firstName} ${caseData.assignedTo.lastName} (${caseData.assignedTo.serviceNumber})`);
+    }
 
-  <div class="signature-section">
-    <div class="signature-box">
-      <strong>Reporting Officer</strong><br>
-      ${caseData.reportedBy.rank} ${caseData.reportedBy.firstName} ${caseData.reportedBy.lastName}<br>
-      Service No: ${caseData.reportedBy.serviceNumber}
-    </div>
-    <div class="signature-box">
-      <strong>Station Commander</strong><br>
-      Signature: _______________<br>
-      Date: _______________
-    </div>
-  </div>
+    // ── Reporting Persons ─────────────────────────────────
+    if (caseData.reportingPersons?.length) {
+      checkPage(30);
+      y += 4;
+      sectionHeader('REPORTING PERSONS');
+      autoTable(doc, {
+        startY: y,
+        head: [['Name', 'Contact', 'ID Number', 'Address']],
+        body: caseData.reportingPersons.map((p: any) => [p.name, p.contact || 'N/A', p.idNumber || 'N/A', p.address || 'N/A']),
+        margin: { left: margin, right: margin },
+        headStyles: { fillColor: blue, fontSize: 8 },
+        bodyStyles: { fontSize: 8, textColor: dark },
+        theme: 'grid',
+      });
+      y = (doc as any).lastAutoTable.finalY + 4;
+    }
 
-  <div class="footer">
-    Generated on ${new Date().toLocaleString()}<br>
-    OB Number: ${caseData.obNumber} | Case ID: ${caseData.id}<br>
-    This is an official Occurrence Book Entry - ${caseData.station.name}
-  </div>
-</body>
-</html>
-    `;
+    // ── Suspects ──────────────────────────────────────────
+    if (caseData.suspects?.length) {
+      checkPage(30);
+      y += 4;
+      sectionHeader('SUSPECTS');
+      autoTable(doc, {
+        startY: y,
+        head: [['Name', 'ID No.', 'Contact', 'Charges', 'Status']],
+        body: caseData.suspects.map((s: any) => [
+          `${s.firstName} ${s.lastName}`,
+          s.idNumber || 'N/A',
+          s.phoneNumber || 'N/A',
+          s.charges || 'N/A',
+          s.isCustody ? 'In Custody' : 'At Large',
+        ]),
+        margin: { left: margin, right: margin },
+        headStyles: { fillColor: blue, fontSize: 8 },
+        bodyStyles: { fontSize: 8, textColor: dark },
+        theme: 'grid',
+      });
+      y = (doc as any).lastAutoTable.finalY + 4;
+    }
 
-    const blob = new Blob([content], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `OB_${caseData.obNumber.replace(/\//g, '_')}_${new Date().toISOString().split('T')[0]}.html`;
-    a.click();
-    URL.revokeObjectURL(url);
+    // ── Witnesses ─────────────────────────────────────────
+    if (caseData.witnesses?.length) {
+      checkPage(30);
+      y += 4;
+      sectionHeader('WITNESSES');
+      autoTable(doc, {
+        startY: y,
+        head: [['Name', 'Contact', 'Address']],
+        body: caseData.witnesses.map((w: any) => [
+          w.name || `${w.firstName} ${w.lastName}`,
+          w.contact || w.phoneNumber || 'N/A',
+          w.address || 'N/A',
+        ]),
+        margin: { left: margin, right: margin },
+        headStyles: { fillColor: blue, fontSize: 8 },
+        bodyStyles: { fontSize: 8, textColor: dark },
+        theme: 'grid',
+      });
+      y = (doc as any).lastAutoTable.finalY + 4;
+    }
+
+    // ── Items Lost ────────────────────────────────────────
+    if (caseData.itemsLost?.length) {
+      checkPage(30);
+      y += 4;
+      sectionHeader('ITEMS LOST / STOLEN');
+      autoTable(doc, {
+        startY: y,
+        head: [['Description', 'Qty', 'Est. Value (KES)']],
+        body: caseData.itemsLost.map((i: any) => [i.description, i.quantity, i.estimatedValue || 'N/A']),
+        margin: { left: margin, right: margin },
+        headStyles: { fillColor: blue, fontSize: 8 },
+        bodyStyles: { fontSize: 8, textColor: dark },
+        theme: 'grid',
+      });
+      y = (doc as any).lastAutoTable.finalY + 4;
+    }
+
+    // ── Items Recovered ───────────────────────────────────
+    if (caseData.itemsRecovered?.length) {
+      checkPage(30);
+      y += 4;
+      sectionHeader('ITEMS RECOVERED');
+      autoTable(doc, {
+        startY: y,
+        head: [['Description', 'Qty', 'Condition', 'Location Found']],
+        body: caseData.itemsRecovered.map((i: any) => [i.description, i.quantity, i.condition || 'N/A', i.locationFound || 'N/A']),
+        margin: { left: margin, right: margin },
+        headStyles: { fillColor: blue, fontSize: 8 },
+        bodyStyles: { fontSize: 8, textColor: dark },
+        theme: 'grid',
+      });
+      y = (doc as any).lastAutoTable.finalY + 4;
+    }
+
+    // ── Vehicles ──────────────────────────────────────────
+    if (caseData.vehicles?.length) {
+      checkPage(30);
+      y += 4;
+      sectionHeader('VEHICLES INVOLVED');
+      autoTable(doc, {
+        startY: y,
+        head: [['Make/Model', 'Reg. No.', 'Color', 'Owner']],
+        body: caseData.vehicles.map((v: any) => [`${v.make || ''} ${v.model || ''}`.trim(), v.registrationNumber, v.color || 'N/A', v.ownerName || 'N/A']),
+        margin: { left: margin, right: margin },
+        headStyles: { fillColor: blue, fontSize: 8 },
+        bodyStyles: { fontSize: 8, textColor: dark },
+        theme: 'grid',
+      });
+      y = (doc as any).lastAutoTable.finalY + 4;
+    }
+
+    // ── Cell Admissions ───────────────────────────────────
+    if (caseData.cellAdmissions?.length) {
+      checkPage(30);
+      y += 4;
+      sectionHeader('CELL ADMISSIONS');
+      autoTable(doc, {
+        startY: y,
+        head: [['Suspect', 'Cell No.', 'Admission Time', 'Status', 'Reason']],
+        body: caseData.cellAdmissions.map((ca: any) => [
+          ca.suspectName,
+          ca.cellNumber,
+          new Date(ca.admissionTime).toLocaleString(),
+          ca.status,
+          ca.reason || 'N/A',
+        ]),
+        margin: { left: margin, right: margin },
+        headStyles: { fillColor: blue, fontSize: 8 },
+        bodyStyles: { fontSize: 8, textColor: dark },
+        theme: 'grid',
+      });
+      y = (doc as any).lastAutoTable.finalY + 4;
+    }
+
+    // ── Signatures ────────────────────────────────────────
+    checkPage(35);
+    y += 10;
+    const sigY = y + 15;
+    doc.setDrawColor(50, 50, 50);
+    doc.line(margin, sigY, margin + 70, sigY);
+    doc.line(pageW - margin - 70, sigY, pageW - margin, sigY);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...dark);
+    doc.text(`${caseData.reportedBy.rank} ${caseData.reportedBy.firstName} ${caseData.reportedBy.lastName}`, margin, sigY + 4);
+    doc.text(`Svc No: ${caseData.reportedBy.serviceNumber}`, margin, sigY + 8);
+    doc.text('Reporting Officer', margin, sigY + 12);
+    doc.text('Station Commander', pageW - margin - 70, sigY + 4);
+    doc.text('Signature: _______________', pageW - margin - 70, sigY + 8);
+    doc.text('Date: _______________', pageW - margin - 70, sigY + 12);
+
+    // ── Footer ────────────────────────────────────────────
+    const totalPages = doc.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFontSize(7);
+      doc.setTextColor(...grey);
+      doc.text(
+        `Generated: ${new Date().toLocaleString()}  ·  OB: ${caseData.obNumber}  ·  ${caseData.station.name}  ·  Page ${i}/${totalPages}`,
+        pageW / 2, doc.internal.pageSize.getHeight() - 8, { align: 'center' }
+      );
+    }
+
+    doc.save(`OB_${caseData.obNumber.replace(/\//g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   const shareOB = () => {
@@ -301,25 +358,6 @@ export default function CaseDetailPage() {
     }
   };
 
-  const getPriorityColorCSS = (priority: string) => {
-    switch (priority) {
-      case "URGENT": return "#dc2626";
-      case "HIGH": return "#ea580c";
-      case "MEDIUM": return "#ca8a04";
-      case "LOW": return "#16a34a";
-      default: return "#6b7280";
-    }
-  };
-
-  const getStatusColorCSS = (status: string) => {
-    switch (status) {
-      case "REPORTED": return "#3b82f6";
-      case "UNDER_INVESTIGATION": return "#8b5cf6";
-      case "RESOLVED": return "#10b981";
-      case "CLOSED": return "#6b7280";
-      default: return "#6b7280";
-    }
-  };
 
   if (isLoading) {
     return (

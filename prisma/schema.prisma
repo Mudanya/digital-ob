@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -12,6 +9,10 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
 
 enum UserRole {
   INSPECTOR_GENERAL
@@ -84,6 +85,129 @@ enum PaymentMethod {
   CARD
   BANK_TRANSFER
 }
+
+enum WeaponType {
+  PISTOL
+  REVOLVER
+  RIFLE
+  SHOTGUN
+  SMG
+  SNIPER_RIFLE
+  GRENADE_LAUNCHER
+  OTHER
+}
+
+enum WeaponStatus {
+  IN_ARMORY
+  ASSIGNED
+  LOST
+  DAMAGED
+  CONDEMNED
+  UNDER_REPAIR
+}
+
+enum WeaponCondition {
+  SERVICEABLE
+  UNSERVICEABLE
+  NEEDS_REPAIR
+}
+
+enum NgaoRole {
+  COUNTY_COMMISSIONER
+  SUB_COUNTY_COMMISSIONER
+  CHIEF
+  SUB_CHIEF
+  ASSISTANT_CHIEF
+  VILLAGE_ELDER
+}
+
+enum NgaoCommunityReportStatus {
+  SUBMITTED
+  ACKNOWLEDGED
+  REFERRED_TO_POLICE
+  RESOLVED
+  CLOSED
+}
+
+// ─────────────────────────────────────────────
+// GEOGRAPHIC HIERARCHY
+// Region → County → SubCounty → Location → SubLocation
+// ─────────────────────────────────────────────
+
+model Region {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  code      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  counties  County[]
+}
+
+model County {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  code        String      @unique
+  regionId    String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  region      Region      @relation(fields: [regionId], references: [id])
+  stations    Station[]
+  users       User[]
+  subCounties SubCounty[]
+
+  @@index([code])
+  @@index([regionId])
+}
+
+model SubCounty {
+  id        String    @id @default(cuid())
+  name      String
+  code      String    @unique
+  countyId  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  county       County        @relation(fields: [countyId], references: [id])
+  stations     Station[]
+  locations    Location[]
+  ngaoOfficers NgaoOfficer[]
+
+  @@index([countyId])
+}
+
+model Location {
+  id          String      @id @default(cuid())
+  name        String
+  subCountyId String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  subCounty    SubCounty    @relation(fields: [subCountyId], references: [id])
+  subLocations SubLocation[]
+  ngaoOfficers NgaoOfficer[]
+
+  @@index([subCountyId])
+}
+
+model SubLocation {
+  id         String   @id @default(cuid())
+  name       String
+  locationId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  location     Location      @relation(fields: [locationId], references: [id])
+  ngaoOfficers NgaoOfficer[]
+
+  @@index([locationId])
+}
+
+// ─────────────────────────────────────────────
+// POLICE USERS & STATIONS
+// ─────────────────────────────────────────────
+
 model User {
   id                String         @id @default(cuid())
   serviceNumber     String         @unique
@@ -100,101 +224,103 @@ model User {
   lastLogin         DateTime?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
-  
+
   station           Station?       @relation(fields: [stationId], references: [id])
   county            County?        @relation(fields: [countyId], references: [id])
-  
-  casesReported     Case[]         @relation("ReportedBy")
-  casesAssigned     Case[]         @relation("AssignedTo")
-  obEntries         OBEntry[]
-  trafficOffenses   TrafficOffense[]
-  dutyRosters       DutyRoster[]
-  activityLogs      ActivityLog[]
-  notifications     Notification[]
-  courtFiles        CourtFile[]    @relation("FiledBy")
-  cellAdmissionsAuthorized CellAdmission[] @relation("AuthorizedBy")
-  cellAdmissionsReleased   CellAdmission[] @relation("ReleasedBy")
-  paymentsProcessed Payment[]      @relation("ProcessedBy")
-  
+
+  casesReported              Case[]            @relation("ReportedBy")
+  casesAssigned              Case[]            @relation("AssignedTo")
+  obEntries                  OBEntry[]
+  trafficOffenses            TrafficOffense[]
+  dutyRosters                DutyRoster[]
+  activityLogs               ActivityLog[]
+  notifications              Notification[]
+  courtFiles                 CourtFile[]       @relation("FiledBy")
+  cellAdmissionsAuthorized   CellAdmission[]   @relation("AuthorizedBy")
+  cellAdmissionsReleased     CellAdmission[]   @relation("ReleasedBy")
+  paymentsProcessed          Payment[]         @relation("ProcessedBy")
+  weaponsAssignedTo          WeaponAssignment[] @relation("WeaponAssignedTo")
+  weaponsAssignedBy          WeaponAssignment[] @relation("WeaponAssignedBy")
+  chargeSheets               ChargeSheet[]     @relation("ChargeSheetCreatedBy")
+
   @@index([serviceNumber])
   @@index([email])
   @@index([stationId])
   @@index([role])
 }
 
-model County {
-  id            String      @id @default(cuid())
-  name          String      @unique
-  code          String      @unique
-  region        String
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  
-  stations      Station[]
-  users         User[]
-  
-  @@index([code])
-}
-
 model Station {
-  id                String      @id @default(cuid())
-  name              String
-  code              String      @unique
-  countyId          String
-  address           String
-  phoneNumber       String?
-  latitude          Float?
-  longitude         Float?
-  isActive          Boolean     @default(true)
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  county            County      @relation(fields: [countyId], references: [id])
-  users             User[]
-  cases             Case[]
-  obEntries         OBEntry[]
-  dutyRosters       DutyRoster[]
-  
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  countyId    String
+  subCountyId String?
+  address     String
+  phoneNumber String?
+  latitude    Float?
+  longitude   Float?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  county       County    @relation(fields: [countyId], references: [id])
+  subCounty    SubCounty? @relation(fields: [subCountyId], references: [id])
+
+  users                User[]
+  cases                Case[]
+  obEntries            OBEntry[]
+  dutyRosters          DutyRoster[]
+  weapons              Weapon[]
+  civilianFirearms     CivilianFirearm[]
+  ngaoCommunityReports NgaoCommunityReport[]
+
   @@index([code])
   @@index([countyId])
+  @@index([subCountyId])
 }
 
+// ─────────────────────────────────────────────
+// CASE MANAGEMENT
+// ─────────────────────────────────────────────
+
 model Case {
-  id                String        @id @default(cuid())
-  obNumber          String        @unique
-  title             String
-  description       String
-  category          CaseCategory
-  status            CaseStatus    @default(REPORTED)
-  priority          CasePriority  @default(MEDIUM)
-  location          String
-  latitude          Float?
-  longitude         Float?
-  reportedById      String
-  assignedToId      String?
-  stationId         String
-  incidentDate      DateTime
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  
-  reportedBy        User          @relation("ReportedBy", fields: [reportedById], references: [id])
-  assignedTo        User?         @relation("AssignedTo", fields: [assignedToId], references: [id])
-  station           Station       @relation(fields: [stationId], references: [id])
-  
-  obEntry           OBEntry?
-  suspects          Suspect[]
-  victims           Victim[]
-  witnesses         Witness[]
-  reportingPersons  ReportingPerson[]
-  itemsLost         ItemLost[]
-  itemsRecovered    ItemRecovered[]
-  vehicles          Vehicle[]
-  cellAdmissions    CellAdmission[]
-  payments          Payment[]
-  evidence          Evidence[]
-  caseUpdates       CaseUpdate[]
-  courtFiles        CourtFile[]
-  
+  id           String       @id @default(cuid())
+  obNumber     String       @unique
+  title        String
+  description  String
+  category     CaseCategory
+  status       CaseStatus   @default(REPORTED)
+  priority     CasePriority @default(MEDIUM)
+  location     String
+  latitude     Float?
+  longitude    Float?
+  reportedById String
+  assignedToId String?
+  stationId    String
+  incidentDate DateTime
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  reportedBy   User         @relation("ReportedBy", fields: [reportedById], references: [id])
+  assignedTo   User?        @relation("AssignedTo", fields: [assignedToId], references: [id])
+  station      Station      @relation(fields: [stationId], references: [id])
+
+  obEntry              OBEntry?
+  suspects             Suspect[]
+  victims              Victim[]
+  witnesses            Witness[]
+  reportingPersons     ReportingPerson[]
+  itemsLost            ItemLost[]
+  itemsRecovered       ItemRecovered[]
+  vehicles             Vehicle[]
+  cellAdmissions       CellAdmission[]
+  payments             Payment[]
+  evidence             Evidence[]
+  caseUpdates          CaseUpdate[]
+  courtFiles           CourtFile[]
+  chargeSheets         ChargeSheet[]
+  ngaoCommunityReports NgaoCommunityReport[]
+
   @@index([obNumber])
   @@index([status])
   @@index([priority])
@@ -204,335 +330,565 @@ model Case {
 }
 
 model OBEntry {
-  id                String      @id @default(cuid())
-  caseId            String      @unique
-  entryNumber       Int
-  stationId         String
-  officerId         String
-  entryDate         DateTime    @default(now())
-  description       String
-  action            String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  station           Station     @relation(fields: [stationId], references: [id])
-  officer           User        @relation(fields: [officerId], references: [id])
-  
+  id          String   @id @default(cuid())
+  caseId      String   @unique
+  entryNumber Int
+  stationId   String
+  officerId   String
+  entryDate   DateTime @default(now())
+  description String
+  action      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  case    Case    @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  station Station @relation(fields: [stationId], references: [id])
+  officer User    @relation(fields: [officerId], references: [id])
+
   @@index([stationId, entryNumber])
   @@index([officerId])
 }
 
 model ReportingPerson {
-  id                String      @id @default(cuid())
-  caseId            String
-  name              String
-  contact           String?
-  idNumber          String?
-  address           String?
-  email             String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  
+  id        String   @id @default(cuid())
+  caseId    String
+  name      String
+  contact   String?
+  idNumber  String?
+  address   String?
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
   @@index([caseId])
   @@index([idNumber])
 }
 
 model Suspect {
-  id                String      @id @default(cuid())
-  caseId            String
-  firstName         String
-  lastName          String
-  idNumber          String?
-  phoneNumber       String?
-  address           String?
-  age               Int?
-  gender            String?
-  description       String?
-  charges           String?
-  photo             String?
-  arrestDate        DateTime?
-  isCustody         Boolean     @default(false)
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  cellAdmissions    CellAdmission[]
-  
+  id          String    @id @default(cuid())
+  caseId      String
+  firstName   String
+  lastName    String
+  idNumber    String?
+  phoneNumber String?
+  address     String?
+  age         Int?
+  gender      String?
+  description String?
+  charges     String?
+  photo       String?
+  arrestDate  DateTime?
+  isCustody   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  case           Case            @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  cellAdmissions CellAdmission[]
+
   @@index([caseId])
   @@index([idNumber])
 }
 
 model Victim {
-  id                String      @id @default(cuid())
-  caseId            String
-  firstName         String
-  lastName          String
-  idNumber          String?
-  phoneNumber       String?
-  address           String?
-  age               Int?
-  gender            String?
-  statement         String?
-  medicalReport     String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  
+  id            String   @id @default(cuid())
+  caseId        String
+  firstName     String
+  lastName      String
+  idNumber      String?
+  phoneNumber   String?
+  address       String?
+  age           Int?
+  gender        String?
+  statement     String?
+  medicalReport String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
   @@index([caseId])
 }
 
 model Witness {
-  id                String      @id @default(cuid())
-  caseId            String
-  name              String
-  contact           String?
-  address           String?
-  statement         String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  
+  id        String   @id @default(cuid())
+  caseId    String
+  name      String
+  contact   String?
+  address   String?
+  statement String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
   @@index([caseId])
 }
 
 model ItemLost {
-  id                String      @id @default(cuid())
-  caseId            String
-  description       String
-  quantity          Int         @default(1)
-  estimatedValue    Decimal?    @db.Decimal(12, 2)
-  category          String?
-  serialNumber      String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  
+  id             String   @id @default(cuid())
+  caseId         String
+  description    String
+  quantity       Int      @default(1)
+  estimatedValue Decimal? @db.Decimal(12, 2)
+  category       String?
+  serialNumber   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
   @@index([caseId])
 }
 
 model ItemRecovered {
-  id                String      @id @default(cuid())
-  caseId            String
-  description       String
-  quantity          Int         @default(1)
-  condition         String?
-  locationFound     String?
-  recoveredDate     DateTime?
-  evidenceTag       String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  
+  id            String    @id @default(cuid())
+  caseId        String
+  description   String
+  quantity      Int       @default(1)
+  condition     String?
+  locationFound String?
+  recoveredDate DateTime?
+  evidenceTag   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
   @@index([caseId])
 }
 
 model Vehicle {
-  id                String      @id @default(cuid())
-  caseId            String
-  make              String?
-  model             String?
+  id                 String   @id @default(cuid())
+  caseId             String
+  make               String?
+  model              String?
   registrationNumber String
-  color             String?
-  year              Int?
-  ownerName         String?
-  ownerIdNumber     String?
-  ownerContact      String?
-  status            String?     // Involved, Stolen, Recovered, Evidence
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  
+  color              String?
+  year               Int?
+  ownerName          String?
+  ownerIdNumber      String?
+  ownerContact       String?
+  status             String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
   @@index([caseId])
   @@index([registrationNumber])
 }
 
 model CellAdmission {
-  id                String      @id @default(cuid())
-  caseId            String
-  suspectId         String?
-  suspectName       String
-  cellNumber        String
-  admissionTime     DateTime
-  releaseTime       DateTime?
-  itemsAtCounter    String?
-  reason            String?
-  authorizedById    String
+  id                   String    @id @default(cuid())
+  caseId               String
+  suspectId            String?
+  suspectName          String
+  cellNumber           String
+  admissionTime        DateTime
+  releaseTime          DateTime?
+  itemsAtCounter       String?
+  reason               String?
+  authorizedById       String
   releaseAuthorizedById String?
-  status            String      @default("IN_CUSTODY") // IN_CUSTODY, RELEASED, TRANSFERRED
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  suspect           Suspect?    @relation(fields: [suspectId], references: [id])
-  authorizedBy      User        @relation("AuthorizedBy", fields: [authorizedById], references: [id])
-  releaseAuthorizedBy User?     @relation("ReleasedBy", fields: [releaseAuthorizedById], references: [id])
-  
+  status               String    @default("IN_CUSTODY")
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  case                Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  suspect             Suspect? @relation(fields: [suspectId], references: [id])
+  authorizedBy        User     @relation("AuthorizedBy", fields: [authorizedById], references: [id])
+  releaseAuthorizedBy User?    @relation("ReleasedBy", fields: [releaseAuthorizedById], references: [id])
+
   @@index([caseId])
   @@index([status])
   @@index([admissionTime])
 }
 
 model Payment {
-  id                String        @id @default(cuid())
-  caseId            String
-  paymentType       PaymentType
-  amount            Decimal       @db.Decimal(12, 2)
-  currency          String        @default("KES")
-  status            PaymentStatus @default(PENDING)
-  paymentMethod     PaymentMethod?
-  transactionId     String?       @unique
-  referenceNumber   String?
-  paidAt            DateTime?
-  paidByName        String?
-  paidByContact     String?
-  processedById     String?
-  notes             String?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  
-  case              Case          @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  processedBy       User?         @relation("ProcessedBy", fields: [processedById], references: [id])
-  
+  id              String         @id @default(cuid())
+  caseId          String
+  paymentType     PaymentType
+  amount          Decimal        @db.Decimal(12, 2)
+  currency        String         @default("KES")
+  status          PaymentStatus  @default(PENDING)
+  paymentMethod   PaymentMethod?
+  transactionId   String?        @unique
+  referenceNumber String?
+  paidAt          DateTime?
+  paidByName      String?
+  paidByContact   String?
+  processedById   String?
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  case        Case  @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  processedBy User? @relation("ProcessedBy", fields: [processedById], references: [id])
+
   @@index([caseId])
   @@index([status])
   @@index([transactionId])
 }
 
 model Evidence {
-  id                String      @id @default(cuid())
-  caseId            String
-  type              String
-  description       String
-  fileUrl           String?
-  collectedBy       String
-  collectedAt       DateTime
-  chainOfCustody    String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  
+  id             String   @id @default(cuid())
+  caseId         String
+  type           String
+  description    String
+  fileUrl        String?
+  collectedBy    String
+  collectedAt    DateTime
+  chainOfCustody String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
   @@index([caseId])
 }
 
 model CaseUpdate {
-  id                String      @id @default(cuid())
-  caseId            String
-  updateBy          String
-  updateType        String
-  description       String
-  createdAt         DateTime    @default(now())
-  
-  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  
+  id          String   @id @default(cuid())
+  caseId      String
+  updateBy    String
+  updateType  String
+  description String
+  createdAt   DateTime @default(now())
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
   @@index([caseId])
 }
 
 model TrafficOffense {
-  id                String      @id @default(cuid())
-  offenseNumber     String      @unique
-  officerId         String
-  driverName        String
-  driverIdNumber    String?
-  driverLicense     String?
-  vehicleReg        String
-  offenseType       String
-  location          String
-  latitude          Float?
-  longitude         Float?
-  fineAmount        Float?
-  isPaid            Boolean     @default(false)
-  offenseDate       DateTime
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  officer           User        @relation(fields: [officerId], references: [id])
-  
+  id             String   @id @default(cuid())
+  offenseNumber  String   @unique
+  officerId      String
+  driverName     String
+  driverIdNumber String?
+  driverLicense  String?
+  vehicleReg     String
+  offenseType    String
+  location       String
+  latitude       Float?
+  longitude      Float?
+  fineAmount     Float?
+  isPaid         Boolean  @default(false)
+  offenseDate    DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  officer User @relation(fields: [officerId], references: [id])
+
   @@index([offenseNumber])
   @@index([vehicleReg])
   @@index([officerId])
 }
 
 model CourtFile {
-  id                String      @id @default(cuid())
-  caseId            String
-  courtName         String
-  caseNumber        String      @unique
-  filedById         String
-  filingDate        DateTime
-  hearingDate       DateTime?
-  verdict           String?
-  status            String      @default("FILED")
-  notes             String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  case              Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  filedBy           User        @relation("FiledBy", fields: [filedById], references: [id])
-  
+  id          String    @id @default(cuid())
+  caseId      String
+  courtName   String
+  caseNumber  String    @unique
+  filedById   String
+  filingDate  DateTime
+  hearingDate DateTime?
+  verdict     String?
+  status      String    @default("FILED")
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  case     Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  filedBy  User @relation("FiledBy", fields: [filedById], references: [id])
+
   @@index([caseId])
   @@index([caseNumber])
   @@index([status])
 }
 
+model ChargeSheet {
+  id                     String    @id @default(cuid())
+  caseId                 String
+  createdById            String
+
+  // Reference numbers
+  courtFileNo            String?
+  odppCaseNo             String?
+  odppStation            String?
+  policeCaseNo           String?
+  dateDrafted            DateTime  @default(now())
+
+  // Accused
+  accusedFirstName       String
+  accusedSurname         String
+  accusedIdNumber        String?
+  accusedSex             String    @default("MALE")
+  accusedNationality     String?
+  accusedApparentAge     String?
+  accusedAddress         String?
+
+  // Charge
+  charge                 String
+  particularsOfOffence   String
+
+  // Arrest
+  wasArrested            Boolean   @default(true)
+  dateOfArrest           DateTime?
+  withoutWarrant         Boolean   @default(true)
+  dateApprehensionReport DateTime?
+  bondOrBail             String?
+  summonsMade            Boolean   @default(false)
+
+  // Court process
+  remandedOrAdjourned    String?
+  complainant            String?
+  witnesses              String?
+
+  // Outcome
+  sentenceCourtDate      String?
+
+  // Prosecutor
+  prosecutorName         String?
+  prosecutorRank         String?
+
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  case        Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  createdBy   User @relation("ChargeSheetCreatedBy", fields: [createdById], references: [id])
+
+  @@index([caseId])
+}
+
 model DutyRoster {
-  id                String      @id @default(cuid())
-  officerId         String
-  stationId         String
-  dutyDate          DateTime
-  shiftStart        DateTime
-  shiftEnd          DateTime
-  status            DutyStatus  @default(ON_DUTY)
-  assignment        String?
-  notes             String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
-  officer           User        @relation(fields: [officerId], references: [id])
-  station           Station     @relation(fields: [stationId], references: [id])
-  
+  id         String     @id @default(cuid())
+  officerId  String
+  stationId  String
+  dutyDate   DateTime
+  shiftStart DateTime
+  shiftEnd   DateTime
+  status     DutyStatus @default(ON_DUTY)
+  assignment String?
+  notes      String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  officer User    @relation(fields: [officerId], references: [id])
+  station Station @relation(fields: [stationId], references: [id])
+
   @@index([officerId, dutyDate])
   @@index([stationId, dutyDate])
 }
 
 model Notification {
-  id                String      @id @default(cuid())
-  userId            String
-  title             String
-  message           String
-  type              String
-  isRead            Boolean     @default(false)
-  metadata          Json?
-  createdAt         DateTime    @default(now())
-  
-  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId, isRead])
   @@index([createdAt])
 }
 
 model ActivityLog {
-  id                String      @id @default(cuid())
-  userId            String
-  action            String
-  entityType        String
-  entityId          String?
-  ipAddress         String?
-  userAgent         String?
-  metadata          Json?
-  createdAt         DateTime    @default(now())
-  
-  user              User        @relation(fields: [userId], references: [id])
-  
+  id         String   @id @default(cuid())
+  userId     String
+  action     String
+  entityType String
+  entityId   String?
+  ipAddress  String?
+  userAgent  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
   @@index([userId])
   @@index([createdAt])
   @@index([entityType, entityId])
+}
+
+// ─────────────────────────────────────────────
+// ARMS REGISTRY
+// ─────────────────────────────────────────────
+
+model Weapon {
+  id           String          @id @default(cuid())
+  stationId    String
+  serialNumber String          @unique
+  weaponType   WeaponType
+  make         String
+  model        String?
+  caliber      String?
+  condition    WeaponCondition @default(SERVICEABLE)
+  status       WeaponStatus    @default(IN_ARMORY)
+  dateAcquired DateTime?
+  notes        String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  station     Station            @relation(fields: [stationId], references: [id])
+  assignments WeaponAssignment[]
+
+  @@index([stationId])
+  @@index([serialNumber])
+  @@index([status])
+}
+
+model WeaponAssignment {
+  id           String    @id @default(cuid())
+  weaponId     String
+  officerId    String
+  assignedById String
+  assignedAt   DateTime  @default(now())
+  returnedAt   DateTime?
+  returnedToId String?
+  purpose      String?
+  notes        String?
+  isReturned   Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  weapon     Weapon @relation(fields: [weaponId], references: [id])
+  officer    User   @relation("WeaponAssignedTo", fields: [officerId], references: [id])
+  assignedBy User   @relation("WeaponAssignedBy", fields: [assignedById], references: [id])
+
+  @@index([weaponId])
+  @@index([officerId])
+  @@index([isReturned])
+}
+
+model CivilianFirearm {
+  id               String     @id @default(cuid())
+  ownerName        String
+  ownerIdNumber    String
+  ownerPhone       String?
+  ownerAddress     String?
+  serialNumber     String     @unique
+  weaponType       WeaponType
+  make             String
+  model            String?
+  caliber          String?
+  licenseNumber    String     @unique
+  licenseIssuedAt  DateTime
+  licenseExpiresAt DateTime
+  isActive         Boolean    @default(true)
+  stationId        String
+  notes            String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  station Station @relation(fields: [stationId], references: [id])
+
+  @@index([ownerIdNumber])
+  @@index([licenseNumber])
+  @@index([stationId])
+}
+
+// ─────────────────────────────────────────────
+// PUBLIC CASE TRACKING (audit trail only)
+// ─────────────────────────────────────────────
+
+model PublicLookupLog {
+  id         String   @id @default(cuid())
+  obNumber   String?
+  nationalId String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([obNumber])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────
+// NGAO PORTAL
+// National Government Administration Officers
+// ─────────────────────────────────────────────
+
+model NgaoOfficer {
+  id            String    @id @default(cuid())
+  name          String
+  nationalId    String    @unique
+  serviceId     String    @unique
+  role          NgaoRole
+  phone         String
+  email         String?   @unique
+  password      String
+  subCountyId   String?
+  locationId    String?
+  subLocationId String?
+  isActive      Boolean   @default(true)
+  lastLogin     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  subCounty    SubCounty?   @relation(fields: [subCountyId], references: [id])
+  location     Location?    @relation(fields: [locationId], references: [id])
+  subLocation  SubLocation? @relation(fields: [subLocationId], references: [id])
+
+  communityReports NgaoCommunityReport[]
+  sentMessages     NgaoMessage[]         @relation("NgaoMessageFrom")
+  receivedMessages NgaoMessage[]         @relation("NgaoMessageTo")
+
+  @@index([nationalId])
+  @@index([role])
+  @@index([locationId])
+}
+
+model NgaoCommunityReport {
+  id                  String                    @id @default(cuid())
+  reportedById        String
+  title               String
+  description         String
+  category            CaseCategory
+  priority            CasePriority
+  location            String
+  latitude            Float?
+  longitude           Float?
+  status              NgaoCommunityReportStatus @default(SUBMITTED)
+  referredToStationId String?
+  relatedCaseId       String?
+  acknowledgedById    String?
+  acknowledgedAt      DateTime?
+  resolvedAt          DateTime?
+  notes               String?
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+
+  reportedBy        NgaoOfficer  @relation(fields: [reportedById], references: [id])
+  referredToStation Station?     @relation(fields: [referredToStationId], references: [id])
+  relatedCase       Case?        @relation(fields: [relatedCaseId], references: [id])
+
+  @@index([reportedById])
+  @@index([status])
+  @@index([referredToStationId])
+}
+
+model NgaoMessage {
+  id            String   @id @default(cuid())
+  fromNgaoId    String?
+  fromOfficerId String?
+  toNgaoId      String?
+  toOfficerId   String?
+  subject       String
+  message       String
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  fromNgao NgaoOfficer? @relation("NgaoMessageFrom", fields: [fromNgaoId], references: [id])
+  toNgao   NgaoOfficer? @relation("NgaoMessageTo", fields: [toNgaoId], references: [id])
+
+  @@index([fromNgaoId])
+  @@index([toNgaoId])
+  @@index([toOfficerId])
+  @@index([fromOfficerId])
 }

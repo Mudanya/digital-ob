@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import DashboardLayout from "@/components/layout/dashboard-layout";
-import { Scale, Plus, Search, Calendar, FileText } from "lucide-react";
+import { Scale, Plus, Search, Calendar, FileText, ScrollText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,7 @@ interface CourtFile {
   status: string;
   notes: string | null;
   case: {
+    id: string;
     obNumber: string;
     title: string;
     category: string;
@@ -389,6 +390,16 @@ export default function CourtCasesPage() {
                         {file.notes}
                       </p>
                     )}
+                  </div>
+
+                  <div className="flex-shrink-0">
+                    <Link
+                      href={`/charge-sheets/new?caseId=${file.case?.id || ''}`}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-amber-400 hover:text-amber-300 rounded-lg text-xs font-medium transition-colors"
+                    >
+                      <ScrollText className="h-3.5 w-3.5" />
+                      Charge Sheet
+                    </Link>
                   </div>
                 </div>
               </div>
